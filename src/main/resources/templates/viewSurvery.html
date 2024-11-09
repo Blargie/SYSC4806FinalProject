@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Surveys</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="viewSurvey.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #results-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<h1>View Surveys</h1>
+<table id="survey-table">
+    <thead>
+    <tr>
+        <th>Survey Name</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Surveys will be dynamically added here -->
+    </tbody>
+</table>
+<div id="results-container">
+    <h2>Survey Results</h2>
+    <div id="text-responses"></div>
+    <canvas id="numeric-chart"></canvas>
+    <canvas id="multiple-choice-chart"></canvas>
+    <button onclick="goBack()">Back to Surveys</button>
+</div>
+</body>
+</html>
