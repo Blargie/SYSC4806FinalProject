@@ -1,4 +1,4 @@
-package project;
+package project.examples;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,7 +38,7 @@ public class BuddyInfo {
 
     @Override
     public String toString() {
-        return "project.BuddyInfo{" +
+        return "project.examples.BuddyInfo{" +
                 "id=" + id +
                 ", buddyName='" + buddyName + '\'' +
                 ", buddyPhoneNumber='" + buddyPhoneNumber + '\'' +

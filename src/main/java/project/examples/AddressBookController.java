@@ -1,4 +1,4 @@
-package project;
+package project.examples;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,7 +31,7 @@ public class AddressBookController {
         return "create";
     }
 
-    //Display project.AddressBook
+    //Display project.examples.AddressBook
     @GetMapping("/{id}")
     public String getAddressBookForm(@PathVariable int id, Model model) {
         Optional<AddressBook> addressBook = addressBookRepository.findById(id);

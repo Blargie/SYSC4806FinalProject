@@ -1,4 +1,4 @@
-package project;
+package project.examples;
 
 import jakarta.persistence.*;
 
@@ -58,7 +58,7 @@ public class AddressBook {
 
     @Override
     public String toString() {
-        String buddyList = "project.AddressBook{" + "id=" + id + ", buddyList=[";
+        String buddyList = "project.examples.AddressBook{" + "id=" + id + ", buddyList=[";
         for (BuddyInfo buddy : this.buddyList) {
             buddyList += buddy.toString() + ", ";
         }
