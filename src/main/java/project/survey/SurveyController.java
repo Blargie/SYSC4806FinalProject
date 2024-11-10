@@ -38,34 +38,20 @@ public class SurveyController {
         return ResponseEntity.ok(savedSurvey);
     }
 
+    @GetMapping("/{surveyId}")
+    public ResponseEntity<Survey> getSurvey(@PathVariable Integer surveyId) {
+        List<Survey> surveys = surveyRepository.findBySurveyId(surveyId);
+        if (surveys.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(surveys.get(0));
+    }
+
     @GetMapping("/list")
     public String listSurveys(Model model) {
         Iterable<Survey> surveys = surveyRepository.findAll();
         model.addAttribute("surveys", surveys);
         return "survey-list";  // Name of the template above
-    }
-
-
-    @GetMapping("/{surveyId}")
-    public String viewSurvey(@PathVariable Integer surveyId, Model model) {
-        List<Survey> surveys = surveyRepository.findBySurveyId(surveyId);
-        if (surveys.isEmpty()) {
-            return "redirect:/api/surveys/list";
-        }
-        model.addAttribute("survey", surveys.get(0));
-        return "view-survey";  // This should match your template name
-    }
-
-    @PostMapping("/{surveyId}/close")
-    public ResponseEntity<Void> closeSurvey(@PathVariable Integer surveyId) {
-        List<Survey> surveys = surveyRepository.findBySurveyId(surveyId);
-        if (surveys.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        Survey survey = surveys.get(0);
-        survey.setIsOpen(false);
-        surveyRepository.save(survey);
-        return ResponseEntity.ok().build();
     }
 
 }
