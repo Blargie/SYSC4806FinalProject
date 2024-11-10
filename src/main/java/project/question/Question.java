@@ -4,8 +4,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
-@MappedSuperclass
+@Entity
+
 public abstract class Question {
     //Abstract Fields
     @Id

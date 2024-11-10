@@ -7,9 +7,13 @@ import project.question.Question;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
+
+@Entity
 public class Survey {
-    //Variables
+    @Id
     private Integer surveyId;
     private Integer userId; //ToDo Milestone2: Implement, not applicable for Milestone 1
     private String surveyName;
@@ -20,44 +24,41 @@ public class Survey {
     //Constructor
     public Survey() {}
 
-    //Getters
-    private Integer getSurveyId() {
+    // Make getters public
+    public Integer getSurveyId() {
         return this.surveyId;
     }
-    private Integer getUserId() {
+
+    public Integer getUserId() {
         return this.userId;
     }
-    private String getSurveyName() {
+
+    public String getSurveyName() {
         return this.surveyName;
     }
-    private List<Question> getSurveyQuestions() {
+
+    public List<Question> getSurveyQuestions() {
         return this.surveyQuestions;
     }
-    private boolean getIsOpen() {
+
+    public boolean getIsOpen() {
         return this.isOpen;
     }
 
-    //Setters
-    private void setSurveyId(Integer surveyId) {
+    // Make setters public
+    public void setSurveyId(Integer surveyId) {
         this.surveyId = surveyId;
     }
-    private void setUserId(Integer userId) {
+
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
-    private void setSurveyName(String surveyName) {
+
+    public void setSurveyName(String surveyName) {
         this.surveyName = surveyName;
     }
-    private void setSurveyOpen(boolean isOpen) {
+
+    public void setSurveyOpen(boolean isOpen) {
         this.isOpen = isOpen;
     }
-
-    //QuestionList Manipulators
-    private void addQuestion(Question question) {
-        this.surveyQuestions.add(question);
-    }
-    private void removeQuestion(int index) {
-        this.surveyQuestions.remove(index);
-    }
-
-
 }
