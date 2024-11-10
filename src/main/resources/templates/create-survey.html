@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create New Survey</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Create New Survey</h2>
+    <form id="surveyForm" class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label for="surveyName" class="form-label">Survey Name</label>
+            <input type="text" class="form-control" id="surveyName" required>
+        </div>
+
+        <div id="questionsContainer">
+            <!-- add Questions here -->
+        </div>
+
+        <button type="button" class="btn btn-secondary mb-3" onclick="addQuestion()">Add Question</button>
+        <button type="submit" class="btn btn-primary">Create Survey</button>
+    </form>
+</div>
+
+<!-- Question Template -->
+<template id="questionTemplate">
+    <div class="question-block card mb-3 p-3">
+        <div class="mb-3">
+            <label class="form-label">Question Text</label>
+            <input type="text" class="form-control question-text" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Question Type</label>
+            <select class="form-select question-type" onchange="handleQuestionTypeChange(this)" required>
+                <option value="TEXT">Text Question</option>
+                <option value="MULTIPLE_CHOICE">Multiple Choice</option>
+                <option value="NUMERIC_RANGE">Numeric Range</option>
+            </select>
+        </div>
+
+        <!-- Text Question Options -->
+        <div class="text-question-options question-options">
+            <label class="form-label">Character Limit</label>
+            <input type="number" class="form-control char-limit" min="1" max="1000" value="255">
+        </div>
+
+        <!-- Multiple Choice Options -->
+        <div class="multiple-choice-options question-options" style="display: none;">
+            <label class="form-label">Number of Options</label>
+            <input type="number" class="form-control num-answers" min="2" max="6" value="4">
+        </div>
+
+        <!-- Numeric Range Options -->
+        <div class="numeric-range-options question-options" style="display: none;">
+            <div class="row">
+                <div class="col">
+                    <label class="form-label">Lower Bound</label>
+                    <input type="number" class="form-control lower-bound" value="1">
+                </div>
+                <div class="col">
+                    <label class="form-label">Upper Bound</label>
+                    <input type="number" class="form-control upper-bound" value="10">
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-danger mt-2" onclick="removeQuestion(this)">Remove Question</button>
+    </div>
+</template>
+
+<script>
+    let questionCount = 0;
+
+    function addQuestion() {
+        const template = document.getElementById('questionTemplate');
+        const clone = template.content.cloneNode(true);
+        const questionBlock = clone.querySelector('.question-block');
+        questionBlock.id = `question-${questionCount}`;
+        document.getElementById('questionsContainer').appendChild(clone);
+        questionCount++;
+    }
+
+    function removeQuestion(button) {
+        button.closest('.question-block').remove();
+    }
+
+    function handleQuestionTypeChange(select) {
+        const questionBlock = select.closest('.question-block');
+        const allOptions = questionBlock.querySelectorAll('.question-options');
+        allOptions.forEach(opt => opt.style.display = 'none');
+
+        switch(select.value) {
+            case 'TEXT':
+                questionBlock.querySelector('.text-question-options').style.display = 'block';
+                break;
+            case 'MULTIPLE_CHOICE':
+                questionBlock.querySelector('.multiple-choice-options').style.display = 'block';
+                break;
+            case 'NUMERIC_RANGE':
+                questionBlock.querySelector('.numeric-range-options').style.display = 'block';
+                break;
+        }
+    }
+
+    document.getElementById('surveyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const survey = {
+        surveyName: document.getElementById('surveyName').value,
+        surveyQuestions: []
+    };
+
+    document.querySelectorAll('.question-block').forEach(block => {
+        const questionType = block.querySelector('.question-type').value;
+        const questionText = block.querySelector('.question-text').value;
+
+        let question;
+        switch(questionType) {
+            case 'TEXT':
+                question = {
+                    type: "TEXT",
+                    questionText: questionText,
+                    charLimit: parseInt(block.querySelector('.char-limit').value)
+                };
+                break;
+            case 'MULTIPLE_CHOICE':
+                question = {
+                    type: "MULTIPLE_CHOICE",
+                    questionText: questionText,
+                    numAnswers: parseInt(block.querySelector('.num-answers').value)
+                };
+                break;
+            case 'NUMERIC_RANGE':
+                question = {
+                    type: "NUMERIC_RANGE",
+                    questionText: questionText,
+                    lowerBound: parseInt(block.querySelector('.lower-bound').value),
+                    upperBound: parseInt(block.querySelector('.upper-bound').value)
+                };
+                break;
+        }
+        survey.surveyQuestions.push(question);
+    });
+
+    try {
+        const response = await fetch('/api/surveys/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(survey)
+        });
+
+        if (response.ok) {
+            const savedSurvey = await response.json();
+            alert('Survey created successfully!');
+            window.location.href = `/api/surveys/${savedSurvey.surveyId}`;
+        } else {
+            const errorData = await response.json();
+            alert(`Failed to create survey: ${errorData.message || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error creating survey');
+    }
+});
+
+    // Add initial question
+    addQuestion();
+</script>
+</body>
+</html>
