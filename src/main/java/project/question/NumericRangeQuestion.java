@@ -1,29 +1,32 @@
 package project.question;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@DiscriminatorValue("NUMERIC_RANGE")
 public class NumericRangeQuestion extends Question {
-    //Fields
-    private int upperBound, lowerBound; //The upper and lower bounds of the range, i.e. (1, 10) = 1-10 for range
-    //Constructors
-    public NumericRangeQuestion() {};
-    //Methods
-    //Getters
-    private int getUpperBound() {
-        return this.upperBound;
-    }
-    private int getLowerBound() {
+
+    @Column(nullable = false)
+    private int lowerBound = 1;
+
+    @Column(nullable = false)
+    private int upperBound = 10;
+
+    public NumericRangeQuestion() {}
+
+    public int getLowerBound() {
         return this.lowerBound;
     }
-    //Setters
-    private void setUpperBound(int upperBound) {
-        this.upperBound = upperBound;
-    }
-    private void setLowerBound(int lowerBound) {
+
+    public void setLowerBound(int lowerBound) {
         this.lowerBound = lowerBound;
+    }
+
+    public int getUpperBound() {
+        return this.upperBound;
+    }
+
+    public void setUpperBound(int upperBound) {
+        this.upperBound = upperBound;
     }
 }

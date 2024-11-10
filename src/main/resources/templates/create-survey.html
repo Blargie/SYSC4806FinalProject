@@ -15,7 +15,7 @@
         </div>
 
         <div id="questionsContainer">
-            <!-- add Questions here -->
+            <!-- Questions will be added here -->
         </div>
 
         <button type="button" class="btn btn-secondary mb-3" onclick="addQuestion()">Add Question</button>
@@ -48,8 +48,15 @@
 
         <!-- Multiple Choice Options -->
         <div class="multiple-choice-options question-options" style="display: none;">
-            <label class="form-label">Number of Options</label>
-            <input type="number" class="form-control num-answers" min="2" max="6" value="4">
+            <div class="mb-3">
+                <label class="form-label">Number of Options</label>
+                <input type="number" class="form-control num-answers"
+                       min="2" max="6" value="4"
+                       onchange="updateMultipleChoiceOptions(this)" required>
+            </div>
+            <div class="options-container">
+                <!-- Options will be generated here -->
+            </div>
         </div>
 
         <!-- Numeric Range Options -->
@@ -86,6 +93,34 @@
         button.closest('.question-block').remove();
     }
 
+    function updateMultipleChoiceOptions(input) {
+        const numOptions = parseInt(input.value);
+        const optionsContainer = input.closest('.multiple-choice-options').querySelector('.options-container');
+
+        let optionsHtml = '<div class="mb-3">';
+        for(let i = 0; i < numOptions; i++) {
+            const letter = String.fromCharCode(65 + i); // Convert 0 to A, 1 to B, etc.
+            optionsHtml += `
+                <div class="mb-2">
+                    <label class="form-label">Option ${letter}</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control option-text"
+                               placeholder="Enter text for option ${letter}" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <input type="radio" name="correct-answer-${questionCount}"
+                                       value="${i}" required>
+                                <label class="ms-2 mb-0">Correct Answer</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        optionsHtml += '</div>';
+        optionsContainer.innerHTML = optionsHtml;
+    }
+
     function handleQuestionTypeChange(select) {
         const questionBlock = select.closest('.question-block');
         const allOptions = questionBlock.querySelectorAll('.question-options');
@@ -96,7 +131,9 @@
                 questionBlock.querySelector('.text-question-options').style.display = 'block';
                 break;
             case 'MULTIPLE_CHOICE':
-                questionBlock.querySelector('.multiple-choice-options').style.display = 'block';
+                const multipleChoiceOptions = questionBlock.querySelector('.multiple-choice-options');
+                multipleChoiceOptions.style.display = 'block';
+                updateMultipleChoiceOptions(multipleChoiceOptions.querySelector('.num-answers'));
                 break;
             case 'NUMERIC_RANGE':
                 questionBlock.querySelector('.numeric-range-options').style.display = 'block';
@@ -105,67 +142,71 @@
     }
 
     document.getElementById('surveyForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const survey = {
-        surveyName: document.getElementById('surveyName').value,
-        surveyQuestions: []
-    };
+        const survey = {
+            surveyName: document.getElementById('surveyName').value,
+            isOpen: true,
+            surveyQuestions: []
+        };
 
-    document.querySelectorAll('.question-block').forEach(block => {
-        const questionType = block.querySelector('.question-type').value;
-        const questionText = block.querySelector('.question-text').value;
+        document.querySelectorAll('.question-block').forEach((block, index) => {
+            const questionType = block.querySelector('.question-type').value;
+            const questionText = block.querySelector('.question-text').value;
 
-        let question;
-        switch(questionType) {
-            case 'TEXT':
-                question = {
-                    type: "TEXT",
-                    questionText: questionText,
-                    charLimit: parseInt(block.querySelector('.char-limit').value)
-                };
-                break;
-            case 'MULTIPLE_CHOICE':
-                question = {
-                    type: "MULTIPLE_CHOICE",
-                    questionText: questionText,
-                    numAnswers: parseInt(block.querySelector('.num-answers').value)
-                };
-                break;
-            case 'NUMERIC_RANGE':
-                question = {
-                    type: "NUMERIC_RANGE",
-                    questionText: questionText,
-                    lowerBound: parseInt(block.querySelector('.lower-bound').value),
-                    upperBound: parseInt(block.querySelector('.upper-bound').value)
-                };
-                break;
-        }
-        survey.surveyQuestions.push(question);
-    });
+            let question = {
+                questionText: questionText,
+                type: questionType
+            };
 
-    try {
-        const response = await fetch('/api/surveys/save', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(survey)
+            switch(questionType) {
+                case 'TEXT':
+                    question.charLimit = parseInt(block.querySelector('.char-limit').value);
+                    break;
+                case 'MULTIPLE_CHOICE':
+                    const numAnswers = parseInt(block.querySelector('.num-answers').value);
+                    const options = Array.from(block.querySelectorAll('.option-text'))
+                        .map(input => input.value);
+                    const correctAnswer = parseInt(block.querySelector('input[type="radio"]:checked').value);
+
+                    question = {
+                        ...question,
+                        numAnswers: numAnswers,
+                        options: options,
+                        correctAnswer: correctAnswer
+                    };
+                    break;
+                case 'NUMERIC_RANGE':
+                    question.lowerBound = parseInt(block.querySelector('.lower-bound').value);
+                    question.upperBound = parseInt(block.querySelector('.upper-bound').value);
+                    break;
+            }
+            survey.surveyQuestions.push(question);
         });
 
-        if (response.ok) {
-            const savedSurvey = await response.json();
-            alert('Survey created successfully!');
-            window.location.href = `/api/surveys/${savedSurvey.surveyId}`;
-        } else {
-            const errorData = await response.json();
-            alert(`Failed to create survey: ${errorData.message || 'Unknown error'}`);
+        try {
+            const response = await fetch('/api/surveys/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(survey)
+            });
+
+            if (response.ok) {
+                const savedSurvey = await response.json();
+                alert('Survey created successfully!');
+                window.location.href = `/api/surveys/${savedSurvey.surveyId}`;
+            } else {
+                const errorData = await response.json();
+                console.error('Server error:', errorData);
+                alert(`Failed to create survey: ${errorData.message || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error creating survey');
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error creating survey');
-    }
-});
+    });
 
     // Add initial question
     addQuestion();

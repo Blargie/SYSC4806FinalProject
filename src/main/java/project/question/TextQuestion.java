@@ -1,23 +1,21 @@
 package project.question;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@DiscriminatorValue("TEXT")
 public class TextQuestion extends Question {
-    //Fields
-    private int charLimit; //The character limit for the text question
-    //Constructors
-    public TextQuestion() {};
-    //Methods
-    //Getters
-    private int getCharLimit() {
+
+    @Column(nullable = false)
+    private int charLimit = 255; // Default value
+
+    public TextQuestion() {}
+
+    public int getCharLimit() {
         return this.charLimit;
     }
-    //Setters
-    private void setCharLimit(int charLimit) {
+
+    public void setCharLimit(int charLimit) {
         this.charLimit = charLimit;
     }
 }

@@ -1,14 +1,12 @@
 package project.question;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)  // Change to JOINED strategy
+@DiscriminatorColumn(name = "dtype")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = TextQuestion.class, name = "TEXT"),
@@ -16,26 +14,27 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
         @JsonSubTypes.Type(value = NumericRangeQuestion.class, name = "NUMERIC_RANGE")
 })
 public abstract class Question {
-    //Abstract Fields
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer questionId;
-    private String questionText; //The text of the question
 
-    //Methods
-    //Getters
-    protected Integer getQuestionId() {
+    @Column(nullable = false)
+    private String questionText;
+
+    public Integer getQuestionId() {
         return this.questionId;
     }
-    protected String getQuestionText() {
+
+    public String getQuestionText() {
         return this.questionText;
     }
 
-    //Setters
-    protected void setQuestionId(Integer questionId) {
+    public void setQuestionId(Integer questionId) {
         this.questionId = questionId;
     }
-    protected void setQuestionText(String questionText) {
+
+    public void setQuestionText(String questionText) {
         this.questionText = questionText;
     }
 }
