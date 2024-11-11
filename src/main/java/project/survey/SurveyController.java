@@ -50,8 +50,17 @@ public class SurveyController {
     @GetMapping("/list")
     public String listSurveys(Model model) {
         Iterable<Survey> surveys = surveyRepository.findAll();
+        System.out.println("Surveys: " + surveys); // Debugging line to check if surveys are being fetched
         model.addAttribute("surveys", surveys);
         return "survey-list";  // Name of the template above
     }
+
+    @GetMapping("/view")
+    public String viewSurveys(Model model) {
+        Iterable<Survey> surveys = surveyRepository.findAll();
+        model.addAttribute("surveys", surveys);
+        return "viewSurvey";
+    }
+
 
 }
