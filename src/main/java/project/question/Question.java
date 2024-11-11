@@ -37,4 +37,16 @@ public abstract class Question {
     public void setQuestionText(String questionText) {
         this.questionText = questionText;
     }
+
+    // getType needed to help retrieve questions type
+    public String getType() {
+        if (this instanceof TextQuestion) {
+            return "TEXT";
+        } else if (this instanceof MultipleChoiceQuestion) {
+            return "MULTIPLE_CHOICE";
+        } else if (this instanceof NumericRangeQuestion) {
+            return "NUMERIC_RANGE";
+        }
+        return "UNKNOWN";  // IF none match return UNKNOWN type but should not happen
+    }
 }

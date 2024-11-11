@@ -33,13 +33,13 @@ public abstract class Answer {
     protected void setAnswerId(Integer answerId) {
         this.answerId = answerId;
     }
-    protected void setUserId(Integer userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
-    protected void setSurveyId(Integer surveyId) {
+    public void setSurveyId(Integer surveyId) {
         this.surveyId = surveyId;
     }
-    protected void setQuestionId(Integer questionId) {
+    public void setQuestionId(Integer questionId) {
         this.questionId = questionId;
     }
 

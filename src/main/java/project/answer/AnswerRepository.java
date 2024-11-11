@@ -1,4 +1,5 @@
 package project.answer;
+import project.answer.Answer;
 
 import org.springframework.data.repository.CrudRepository;
 
