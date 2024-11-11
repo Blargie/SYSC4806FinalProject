@@ -1,5 +1,8 @@
 package project.answer;
 
+import jakarta.persistence.Entity;
+
+@Entity
 public class TextAnswer extends Answer {
     //Fields
     private String text;
@@ -8,11 +11,11 @@ public class TextAnswer extends Answer {
     public TextAnswer() {}
     //Methods
     //Getters
-    private String getText() {
+    public String getText() {
         return this.text;
     }
     //Setters
-    private void setText(String text) {
+    public void setText(String text) {
         this.text = text;
     }
 }

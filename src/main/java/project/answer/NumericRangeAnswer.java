@@ -11,11 +11,11 @@ public class NumericRangeAnswer extends Answer {
     public NumericRangeAnswer() {}
     //Methods
     //Getters
-    private int getChoice() {
+    public int getChoice() {
         return this.choice;
     }
     //Setters
-    private void setChoice(int choice) {
+    public void setChoice(int choice) {
         this.choice = choice;
     }
 }
