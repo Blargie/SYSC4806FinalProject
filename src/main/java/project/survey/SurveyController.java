@@ -53,5 +53,4 @@ public class SurveyController {
         model.addAttribute("surveys", surveys);
         return "survey-list";  // Name of the template above
     }
-//test
 }
