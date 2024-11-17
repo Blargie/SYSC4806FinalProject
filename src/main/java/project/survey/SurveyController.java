@@ -45,6 +45,12 @@ public class SurveyController {
 
     }
 
+    @GetMapping("/index")
+    public String showIndex() {
+        return "index";
+    }
+
+
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("survey", new Survey());
