@@ -22,10 +22,9 @@ public class Survey {
     private Integer userId;
     private String surveyName;
 
-    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Question> surveyQuestions = new ArrayList<>();
-
 
     private boolean isOpen;
 
@@ -99,12 +98,23 @@ public class Survey {
         }
     }
 
-    public int getQuestionCount() {
-        return this.surveyQuestions.size();
+    public void clearQuestions() {
+        for (Question question : this.surveyQuestions) {
+            question.setSurvey(null);
+        }
+        this.surveyQuestions.clear();
     }
 
-    public void clearQuestions() {
-        this.surveyQuestions.clear();
+    public void removeAllQuestions() {
+        for (Question question : this.surveyQuestions) {
+            question.setSurvey(null); // Unlink the question from the survey
+        }
+        this.surveyQuestions.clear(); // Clear the list of questions
+    }
+
+
+    public int getQuestionCount() {
+        return this.surveyQuestions.size();
     }
 
     // Override methods
