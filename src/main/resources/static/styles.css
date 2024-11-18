@@ -1,0 +1,91 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.survey-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+.survey-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.survey-card h3 {
+    margin: 0 0 10px;
+}
+
+.status-open {
+    color: green;
+}
+
+.status-closed {
+    color: red;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #fff;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.survey-card h3 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.survey-card p {
+    margin: 5px 0;
+    text-align: center;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+

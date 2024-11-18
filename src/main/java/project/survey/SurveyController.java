@@ -88,6 +88,40 @@ public class SurveyController {
         return "answer-survey";
     }
 
+    // New mapping for View Survey page
+    @GetMapping("/view-survey")
+    public String viewSurveyPage() {
+        return "ViewSurvey";
+    }
+
+    // New method for returning JSON response
+    @GetMapping("/list-json")
+    public ResponseEntity<List<Survey>> getAllSurveys() {
+        List<Survey> surveys = (List<Survey>) surveyRepository.findAll();
+        surveys.forEach(survey -> survey.getSurveyQuestions().size()); // Trigger loading of questions
+        return ResponseEntity.ok(surveys);
+    }
+
+    @GetMapping("/{surveyId}/edit")
+    public String editSurvey(@PathVariable Integer surveyId, Model model) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+        model.addAttribute("survey", survey);
+        return "edit-survey"; // The name of your edit survey template (e.g., edit-survey.html)
+    }
+
+    @GetMapping("/{surveyId}/generate")
+    public String generateReport(@PathVariable Integer surveyId, Model model) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+        model.addAttribute("survey", survey);
+        // Logic to generate the report (e.g., create PDF or HTML report)
+        return "survey-report"; // The name of your report template (e.g., survey-report.html)
+    }
+
+
+
+
     // handles submitting survey answers
     @PostMapping("/{surveyId}/submit")
     public String submitSurveyAnswers(@PathVariable Integer surveyId, @RequestParam Map<String, String> answers) {

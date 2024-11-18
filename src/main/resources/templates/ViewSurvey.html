@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Surveys</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<h1>Available Surveys</h1>
+<div id="survey-container" class="survey-container"></div>
+
+<!-- Back to Index Button -->
+<button class="btn btn-primary" onclick="window.location.href='/api/surveys/index'">Back to Index</button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('http://localhost:8080/api/surveys/list-json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const surveyContainer = document.getElementById('survey-container');
+                surveyContainer.innerHTML = '';
+
+                if (data.length === 0) {
+                    surveyContainer.innerHTML = '<p>No surveys found.</p>';
+                    return;
+                }
+
+                data.forEach(survey => {
+                    const surveyCard = document.createElement('div');
+                    surveyCard.classList.add('survey-card');
+
+                    const title = document.createElement('h3');
+                    title.textContent = survey.title;
+                    surveyCard.appendChild(title);
+
+                    const status = document.createElement('p');
+                    status.textContent = `Status: ${survey.isOpen ? 'Open' : 'Closed'}`;
+                    status.classList.add(survey.isOpen ? 'status-open' : 'status-closed');
+                    surveyCard.appendChild(status);
+
+                    const questionCount = document.createElement('p');
+                    questionCount.textContent = `Questions: ${survey.surveyQuestions ? survey.surveyQuestions.length : 0}`;
+                    surveyCard.appendChild(questionCount);
+
+
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.classList.add('button-container');
+
+                    const openCloseButton = document.createElement('button');
+                    openCloseButton.textContent = survey.isOpen ? 'Close' : 'Open';
+                    openCloseButton.classList.add('btn', survey.isOpen ? 'btn-danger' : 'btn-success');
+                    openCloseButton.onclick = () => toggleSurvey(survey.id, survey.isOpen);
+
+                    const editButton = document.createElement('button');
+                    editButton.textContent = 'Edit';
+                    editButton.classList.add('btn', 'btn-warning');
+                    editButton.onclick = () => editSurvey(survey.id);
+
+                    const generateButton = document.createElement('button');
+                    generateButton.textContent = 'Generate Report';
+                    generateButton.classList.add('btn', 'btn-info');
+                    generateButton.onclick = () => generateReport(survey.id);
+
+                    buttonContainer.appendChild(openCloseButton);
+                    buttonContainer.appendChild(editButton);
+                    buttonContainer.appendChild(generateButton);
+
+                    surveyCard.appendChild(buttonContainer);
+                    surveyContainer.appendChild(surveyCard);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching surveys:', error);
+                alert(`Failed to load surveys: ${error.message}`);
+            });
+    });
+
+    function toggleSurvey(surveyId, isOpen) {
+        fetch(`/api/surveys/${surveyId}/toggle`, { method: 'POST' })
+            .then(response => response.json())
+            .then(() => location.reload())
+            .catch(error => alert('Failed to toggle survey status.'));
+    }
+
+    function editSurvey(surveyId) {
+        // Redirect to the edit page for the selected survey
+        window.location.href = `/api/surveys/${surveyId}/edit`;
+    }
+
+    function generateReport(surveyId) {
+        // Redirect to the generate report page for the selected survey
+        window.location.href = `/api/surveys/${surveyId}/generate`;
+    }
+
+</script>
+</body>
+</html>
