@@ -197,7 +197,7 @@
             if (response.ok) {
                 const savedSurvey = await response.json();
                 alert('Survey created successfully!');
-                window.location.href = `/api/surveys/${savedSurvey.surveyId}`;
+                window.location.href = '/api/surveys/view-survey';
             } else {
                 const errorData = await response.json();
                 console.error('Server error:', errorData);
