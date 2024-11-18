@@ -4,9 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Survey Report</title>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 <h1>Survey Report</h1>
-<p>This is the survey report page (placeholder).</p>
+<h2 id="survey-title"></h2>
+<div id="questions-container"></div>
+
+<button onclick="window.location.href='/api/surveys/view-survey'">Back to View Surveys</button>
+
+<script>
+  const surveyId = window.location.pathname.split("/")[3];
+
+  // Fetch survey details and answers
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch(`/api/surveys/${surveyId}`)
+            .then(response => response.json())
+            .then(data => {
+              document.getElementById('survey-title').textContent = data.surveyName;
+              const questionsContainer = document.getElementById('questions-container');
+              data.surveyQuestions.forEach(question => {
+                const questionDiv = document.createElement('div');
+                questionDiv.innerHTML = `
+                            <h3>${question.questionText}</h3>
+                            <p>Type: ${question.type}</p>
+                        `;
+                questionsContainer.appendChild(questionDiv);
+              });
+            });
+  });
+</script>
 </body>
 </html>

@@ -107,7 +107,7 @@ public class SurveyController {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
         model.addAttribute("survey", survey);
-        return "edit-survey"; // The name of your edit survey template (e.g., edit-survey.html)
+        return "edit-survey"; // Ensure this matches the template name
     }
 
     @GetMapping("/{surveyId}/generate")
@@ -115,10 +115,34 @@ public class SurveyController {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
         model.addAttribute("survey", survey);
-        // Logic to generate the report (e.g., create PDF or HTML report)
-        return "survey-report"; // The name of your report template (e.g., survey-report.html)
+        return "survey-report"; // Ensure this matches the template name
     }
 
+    @PostMapping("/{surveyId}/toggle-status")
+    public ResponseEntity<String> toggleSurveyStatus(@PathVariable Integer surveyId, @RequestBody Map<String, Boolean> request) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+
+        boolean newStatus = request.get("isOpen");
+        survey.setIsOpen(newStatus);
+        surveyRepository.save(survey);
+
+        return ResponseEntity.ok("Survey status updated successfully");
+    }
+
+
+    @PostMapping("/{surveyId}/update")
+    public ResponseEntity<String> updateSurvey(@PathVariable Integer surveyId, @RequestBody Survey updatedSurvey) {
+        Survey existingSurvey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+
+        existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
+        existingSurvey.setIsOpen(updatedSurvey.getIsOpen());
+        existingSurvey.setSurveyQuestions(updatedSurvey.getSurveyQuestions());
+
+        surveyRepository.save(existingSurvey);
+        return ResponseEntity.ok("Survey updated successfully");
+    }
 
 
 

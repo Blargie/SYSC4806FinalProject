@@ -3,10 +3,11 @@ package project.question;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import project.survey.Survey;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)  // Using JOINED strategy for inheritance
+@Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "dtype")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
@@ -25,6 +26,7 @@ public abstract class Question {
 
     @ManyToOne
     @JoinColumn(name = "survey_id")
+    @JsonBackReference
     private Survey survey;
 
     // Getters and Setters
@@ -61,6 +63,6 @@ public abstract class Question {
         } else if (this instanceof NumericRangeQuestion) {
             return "NUMERIC_RANGE";
         }
-        return "UNKNOWN";  // Return "UNKNOWN" if none match (should not happen)
+        return "UNKNOWN";
     }
 }
