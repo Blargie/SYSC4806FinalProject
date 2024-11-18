@@ -3,9 +3,11 @@ package project.question;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import project.survey.Survey;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)  // Change to JOINED strategy
+@Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "dtype")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
@@ -22,12 +24,22 @@ public abstract class Question {
     @Column(nullable = false)
     private String questionText;
 
+    @ManyToOne
+    @JoinColumn(name = "survey_id")
+    @JsonBackReference
+    private Survey survey;
+
+    // Getters and Setters
     public Integer getQuestionId() {
         return this.questionId;
     }
 
     public String getQuestionText() {
         return this.questionText;
+    }
+
+    public Survey getSurvey() {
+        return this.survey;
     }
 
     public void setQuestionId(Integer questionId) {
@@ -38,7 +50,11 @@ public abstract class Question {
         this.questionText = questionText;
     }
 
-    // getType needed to help retrieve questions type
+    public void setSurvey(Survey survey) {
+        this.survey = survey;
+    }
+
+    // getType method to help retrieve the question's type
     public String getType() {
         if (this instanceof TextQuestion) {
             return "TEXT";
@@ -47,6 +63,6 @@ public abstract class Question {
         } else if (this instanceof NumericRangeQuestion) {
             return "NUMERIC_RANGE";
         }
-        return "UNKNOWN";  // IF none match return UNKNOWN type but should not happen
+        return "UNKNOWN";
     }
 }

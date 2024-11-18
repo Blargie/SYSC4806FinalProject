@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Survey</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+  <h1 class="text-center mb-4">Edit Survey</h1>
+  <form id="edit-survey-form" class="p-4 bg-white rounded shadow-sm">
+    <div class="mb-3">
+      <label for="surveyName" class="form-label">Survey Title:</label>
+      <input type="text" id="surveyName" name="surveyName" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="isOpen" class="form-label">Status:</label>
+      <select id="isOpen" name="isOpen" class="form-select">
+        <option value="true">Open</option>
+        <option value="false">Closed</option>
+      </select>
+    </div>
+
+    <h3>Questions:</h3>
+    <div id="questions-container" class="mb-3"></div>
+
+    <button type="button" class="btn btn-primary" onclick="saveSurvey()">Save Changes</button>
+    <button type="button" class="btn btn-secondary" onclick="window.location.href='/api/surveys/view-survey'">Cancel</button>
+  </form>
+</div>
+
+<script>
+  const surveyId = window.location.pathname.split("/")[3];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch(`/api/surveys/${surveyId}`)
+            .then(response => response.json())
+            .then(data => {
+              document.getElementById('surveyName').value = data.surveyName;
+              document.getElementById('isOpen').value = data.isOpen;
+
+              const questionsContainer = document.getElementById('questions-container');
+              questionsContainer.innerHTML = '';
+
+              data.surveyQuestions.forEach(question => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('mb-3');
+                questionDiv.innerHTML = `
+                            <label class="form-label">Question:</label>
+                            <input type="text" class="form-control" value="${question.questionText}" data-question-id="${question.questionId}">
+                        `;
+                questionsContainer.appendChild(questionDiv);
+              });
+            });
+  });
+
+  function saveSurvey() {
+    const surveyName = document.getElementById('surveyName').value;
+    const isOpen = document.getElementById('isOpen').value === 'true';
+    const questions = Array.from(document.querySelectorAll('[data-question-id]')).map(input => ({
+      questionId: input.dataset.questionId,
+      questionText: input.value
+    }));
+
+    const updatedSurvey = {
+      surveyId,
+      surveyName,
+      isOpen,
+      surveyQuestions: questions
+    };
+
+    fetch(`/api/surveys/${surveyId}/update`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updatedSurvey)
+    })
+            .then(response => {
+              if (response.ok) {
+                alert('Survey updated successfully!');
+                window.location.href = '/api/surveys/view-survey';
+              } else {
+                alert('Failed to update survey.');
+              }
+            });
+  }
+</script>
+</body>
+</html>

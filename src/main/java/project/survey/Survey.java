@@ -5,12 +5,13 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import project.question.Question;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 
 @Entity
 public class Survey {
@@ -21,8 +22,10 @@ public class Survey {
     private Integer userId;
     private String surveyName;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Question> surveyQuestions = new ArrayList<Question>();
+    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Question> surveyQuestions = new ArrayList<>();
+
 
     private boolean isOpen;
 
@@ -82,6 +85,7 @@ public class Survey {
         if (this.surveyQuestions == null) {
             this.surveyQuestions = new ArrayList<>();
         }
+        question.setSurvey(this);
         this.surveyQuestions.add(question);
     }
 

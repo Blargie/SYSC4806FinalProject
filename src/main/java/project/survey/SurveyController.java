@@ -88,6 +88,64 @@ public class SurveyController {
         return "answer-survey";
     }
 
+    // New mapping for View Survey page
+    @GetMapping("/view-survey")
+    public String viewSurveyPage() {
+        return "ViewSurvey";
+    }
+
+    // New method for returning JSON response
+    @GetMapping("/list-json")
+    public ResponseEntity<List<Survey>> getAllSurveys() {
+        List<Survey> surveys = (List<Survey>) surveyRepository.findAll();
+        surveys.forEach(survey -> survey.getSurveyQuestions().size()); // Trigger loading of questions
+        return ResponseEntity.ok(surveys);
+    }
+
+    @GetMapping("/{surveyId}/edit")
+    public String editSurvey(@PathVariable Integer surveyId, Model model) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+        model.addAttribute("survey", survey);
+        return "edit-survey"; // Ensure this matches the template name
+    }
+
+    @GetMapping("/{surveyId}/generate")
+    public String generateReport(@PathVariable Integer surveyId, Model model) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+        model.addAttribute("survey", survey);
+        return "survey-report"; // Ensure this matches the template name
+    }
+
+    @PostMapping("/{surveyId}/toggle-status")
+    public ResponseEntity<String> toggleSurveyStatus(@PathVariable Integer surveyId, @RequestBody Map<String, Boolean> request) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+
+        boolean newStatus = request.get("isOpen");
+        survey.setIsOpen(newStatus);
+        surveyRepository.save(survey);
+
+        return ResponseEntity.ok("Survey status updated successfully");
+    }
+
+
+    @PostMapping("/{surveyId}/update")
+    public ResponseEntity<String> updateSurvey(@PathVariable Integer surveyId, @RequestBody Survey updatedSurvey) {
+        Survey existingSurvey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+
+        existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
+        existingSurvey.setIsOpen(updatedSurvey.getIsOpen());
+        existingSurvey.setSurveyQuestions(updatedSurvey.getSurveyQuestions());
+
+        surveyRepository.save(existingSurvey);
+        return ResponseEntity.ok("Survey updated successfully");
+    }
+
+
+
     // handles submitting survey answers
     @PostMapping("/{surveyId}/submit")
     public String submitSurveyAnswers(@PathVariable Integer surveyId, @RequestParam Map<String, String> answers) {
