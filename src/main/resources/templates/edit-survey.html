@@ -61,7 +61,8 @@
     const isOpen = document.getElementById('isOpen').value === 'true';
     const questions = Array.from(document.querySelectorAll('[data-question-id]')).map(input => ({
       questionId: input.dataset.questionId,
-      questionText: input.value
+      questionText: input.value,
+      type: "TEXT" // Assuming all questions are of type "TEXT" for simplicity
     }));
 
     const updatedSurvey = {

@@ -1,5 +1,6 @@
 package project.survey;
 
+import org.springframework.web.bind.annotation.*;
 import project.answer.Answer;
 import project.answer.TextAnswer;
 import project.answer.MultipleChoiceAnswer;
@@ -13,17 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 import java.util.Map;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller  // Changed from @RestController
@@ -40,10 +33,62 @@ public class SurveyController {
     @Autowired
     public SurveyController(SurveyRepository surveyRepository) {
         this.surveyRepository = surveyRepository;
-        this.answerRepository = answerRepository;
-        this.questionRepository = questionRepository;
-
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteSurvey(@PathVariable Integer id) {
+        try {
+            Survey survey = surveyRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
+
+            // Delete all related questions first to avoid relationship conflicts
+            for (Question question : survey.getSurveyQuestions()) {
+                questionRepository.delete(question);
+            }
+
+            // Now delete the survey
+            surveyRepository.delete(survey);
+            return ResponseEntity.ok("Survey deleted successfully");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Failed to delete survey");
+        }
+    }
+
+    @PostMapping("/{surveyId}/update")
+    public ResponseEntity<String> updateSurvey(@PathVariable Integer surveyId, @RequestBody Survey updatedSurvey) {
+        try {
+            Survey existingSurvey = surveyRepository.findById(surveyId)
+                    .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
+
+            // Log incoming data
+            System.out.println("Received Survey Name: " + updatedSurvey.getSurveyName());
+            System.out.println("Received Survey Status: " + updatedSurvey.getIsOpen());
+            System.out.println("Received Questions: " + updatedSurvey.getSurveyQuestions());
+
+            // Update survey fields
+            existingSurvey.setSurveyName(updatedSurvey.getSurveyName() != null ? updatedSurvey.getSurveyName() : "");
+            existingSurvey.setIsOpen(updatedSurvey.getIsOpen());
+
+            // Clear existing questions and update with new ones
+            existingSurvey.removeAllQuestions();
+            if (updatedSurvey.getSurveyQuestions() != null) {
+                for (Question question : updatedSurvey.getSurveyQuestions()) {
+                    question.setSurvey(existingSurvey);
+                    existingSurvey.addQuestion(question);
+                }
+            }
+
+            surveyRepository.save(existingSurvey);
+            return ResponseEntity.ok("Survey updated successfully");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Failed to update survey");
+        }
+    }
+
 
     @GetMapping("/index")
     public String showIndex() {
@@ -88,6 +133,14 @@ public class SurveyController {
         return "answer-survey";
     }
 
+    @GetMapping("/list-open")
+    public String listOpenSurveys(Model model) {
+        List<Survey> openSurveys = surveyRepository.findByIsOpenTrue();
+        model.addAttribute("surveys", openSurveys);
+        return "survey-list"; // Ensure this points to the correct template
+    }
+
+
     // New mapping for View Survey page
     @GetMapping("/view-survey")
     public String viewSurveyPage() {
@@ -130,22 +183,6 @@ public class SurveyController {
         return ResponseEntity.ok("Survey status updated successfully");
     }
 
-
-    @PostMapping("/{surveyId}/update")
-    public ResponseEntity<String> updateSurvey(@PathVariable Integer surveyId, @RequestBody Survey updatedSurvey) {
-        Survey existingSurvey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
-
-        existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
-        existingSurvey.setIsOpen(updatedSurvey.getIsOpen());
-        existingSurvey.setSurveyQuestions(updatedSurvey.getSurveyQuestions());
-
-        surveyRepository.save(existingSurvey);
-        return ResponseEntity.ok("Survey updated successfully");
-    }
-
-
-
     // handles submitting survey answers
     @PostMapping("/{surveyId}/submit")
     public String submitSurveyAnswers(@PathVariable Integer surveyId, @RequestParam Map<String, String> answers) {
@@ -168,7 +205,7 @@ public class SurveyController {
             answerRepository.save(answer);
         }
 
-        return "redirect:/api/surveys/list"; // redirect user back to survey list after they awnser
+        return "redirect:/api/surveys/list"; // redirect user back to survey list after they answer
 
     }
 
