@@ -29,7 +29,14 @@ public abstract class Question {
     @JsonBackReference
     private Survey survey;
 
+
+        
+    @Column(nullable = false)
+    private boolean required = true;
+
+
     // Getters and Setters
+
     public Integer getQuestionId() {
         return this.questionId;
     }
