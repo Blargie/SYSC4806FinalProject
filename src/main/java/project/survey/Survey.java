@@ -20,16 +20,16 @@ public class Survey {
 
     @Column(columnDefinition = "TEXT")
     private String surveyDescription;
-    
+
     @Column(nullable = false)
     private boolean isOpen;
-    
+
     @Column
     private boolean isAnonymous;
-    
+
     @Column
     private Date expirationDate;
-    
+
     @Column(nullable = false)
     private Date createdAt;
 
@@ -182,8 +182,10 @@ public class Survey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Survey)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Survey))
+            return false;
         Survey survey = (Survey) o;
         return surveyId != null && surveyId.equals(survey.getSurveyId());
     }
