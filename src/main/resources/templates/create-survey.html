@@ -51,8 +51,7 @@
         <div class="multiple-choice-options question-options" style="display: none;">
             <div class="mb-3">
                 <label class="form-label">Number of Options</label>
-                <input type="number" class="form-control num-answers"
-                       min="2" max="6" value="4"
+                <input type="number" class="form-control num-answers" min="2" max="6" value="4" 
                        onchange="updateMultipleChoiceOptions(this)" required>
             </div>
             <div class="options-container">
@@ -96,28 +95,21 @@
 
     function updateMultipleChoiceOptions(input) {
         const numOptions = parseInt(input.value);
-        const optionsContainer = input.closest('.multiple-choice-options').querySelector('.options-container');
-
+        const optionsContainer = input.closest('.multiple-choice-options')
+                                    .querySelector('.options-container');
         let optionsHtml = '<div class="mb-3">';
+        
         for(let i = 0; i < numOptions; i++) {
             const letter = String.fromCharCode(65 + i); // Convert 0 to A, 1 to B, etc.
             optionsHtml += `
                 <div class="mb-2">
                     <label class="form-label">Option ${letter}</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control option-text"
-                               placeholder="Enter text for option ${letter}" required>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <input type="radio" name="correct-answer-${questionCount}"
-                                       value="${i}" required>
-                                <label class="ms-2 mb-0">Correct Answer</label>
-                            </div>
-                        </div>
-                    </div>
+                    <input type="text" class="form-control option-text" 
+                        placeholder="Enter text for option ${letter}" required>
                 </div>
             `;
         }
+        
         optionsHtml += '</div>';
         optionsContainer.innerHTML = optionsHtml;
     }
@@ -168,13 +160,10 @@
                     const numAnswers = parseInt(block.querySelector('.num-answers').value);
                     const options = Array.from(block.querySelectorAll('.option-text'))
                         .map(input => input.value);
-                    const correctAnswer = parseInt(block.querySelector('input[type="radio"]:checked').value);
-
                     question = {
                         ...question,
                         numAnswers: numAnswers,
-                        options: options,
-                        correctAnswer: correctAnswer
+                        options: options
                     };
                     break;
                 case 'NUMERIC_RANGE':
