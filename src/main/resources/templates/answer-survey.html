@@ -12,9 +12,11 @@
         <div th:each="question : ${survey.surveyQuestions}">
             <div class="mb-3">
                 <label th:for="'question-' + ${question.questionId}" th:text="${question.questionText}"></label>
+
                 <div th:if="${question.type == 'TEXT'}">
                     <input type="text" th:name="'question_' + ${question.questionId}" class="form-control" required>
                 </div>
+
                 <div th:if="${question.type == 'MULTIPLE_CHOICE'}">
                     <select th:name="'question_' + ${question.questionId}" class="form-control" required>
                         <option th:each="option, iterStat : ${question.options}"
@@ -22,8 +24,15 @@
                                 th:text="${option}"></option>
                     </select>
                 </div>
+
                 <div th:if="${question.type == 'NUMERIC_RANGE'}">
-                    <input type="number" th:name="'question_' + ${question.questionId}" class="form-control" required>
+                    <label th:for="'question-' + ${question.questionId}">Select a number:</label>
+                    <div th:each="i : ${#numbers.sequence(1, 10)}">
+                        <input type="radio" th:name="'question_' + ${question.questionId}" th:value="${i}"
+                               th:id="'question-' + ${question.questionId} + '-value-' + ${i}" required>
+
+                        <label th:for="'question-' + ${question.questionId} + '-value-' + ${i}" th:text="${i}"></label>
+                    </div>
                 </div>
             </div>
         </div>

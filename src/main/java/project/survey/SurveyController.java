@@ -244,4 +244,5 @@ public class SurveyController {
     }
 
     //test
+    //http://localhost:8080/api/surveys/index
 }
