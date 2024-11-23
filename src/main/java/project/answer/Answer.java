@@ -10,27 +10,27 @@ public abstract class Answer {
     //Abstract Fields
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    protected Integer answerId;
-    protected Integer userId;  //ToDo Milestone2: The id of the user who answered the question
-    protected Integer surveyId;
-    protected Integer questionId;
+    public Integer answerId;
+    public Integer userId;  //ToDo Milestone2: The id of the user who answered the question
+    public Integer surveyId;
+    public Integer questionId;
 
     //Methods
     //Getters
-    protected Integer getAnswerId() {
+    public Integer getAnswerId() {
         return this.answerId;
     }
-    protected Integer getUserId() {
+    public Integer getUserId() {
         return this.userId;
     }
-    protected Integer getSurveyId() {
+    public Integer getSurveyId() {
         return this.surveyId;
     }
-    protected Integer getQuestionId() {
+    public Integer getQuestionId() {
         return this.questionId;
     }
     //Setters
-    protected void setAnswerId(Integer answerId) {
+    public void setAnswerId(Integer answerId) {
         this.answerId = answerId;
     }
     public void setUserId(Integer userId) {
