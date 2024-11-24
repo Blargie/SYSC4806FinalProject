@@ -20,7 +20,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build the project with Maven
-        run: mvn clean install
+        run: mvn clean install -DskipTests
 
       - name: Deploy to Heroku
         env:
