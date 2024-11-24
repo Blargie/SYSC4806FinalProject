@@ -32,7 +32,6 @@ public abstract class Question {
     @Column(nullable = false)
     private boolean required = true;
 
-
     public boolean isRequired() {
         return required;
     }
@@ -60,6 +59,7 @@ public abstract class Question {
     public void setQuestionText(String questionText) {
         this.questionText = questionText;
     }
+
 
     public void setSurvey(Survey survey) {
         this.survey = survey;

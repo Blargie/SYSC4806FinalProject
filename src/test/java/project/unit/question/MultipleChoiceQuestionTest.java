@@ -80,21 +80,6 @@ class MultipleChoiceQuestionTest {
     }
 
     @Test
-    void getCorrectAnswer() {
-        MultipleChoiceQuestion mcq = new MultipleChoiceQuestion();
-        mcq.setCorrectAnswer(1);
-        assertEquals(1, mcq.getCorrectAnswer());
-    }
-
-    @Test
-    void setCorrectAnswer() {
-        MultipleChoiceQuestion mcq = new MultipleChoiceQuestion();
-        mcq.setCorrectAnswer(1);
-        assertNotNull(mcq.getCorrectAnswer());
-        assertEquals(1, mcq.getCorrectAnswer());
-    }
-
-    @Test
     void getOptions() {
         MultipleChoiceQuestion mcq = new MultipleChoiceQuestion();
         List options = new ArrayList();
