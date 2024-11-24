@@ -11,9 +11,6 @@ public class MultipleChoiceQuestion extends Question {
     @Column(nullable = false)
     private int numAnswers;
 
-    @Column(nullable = false)
-    private int correctAnswer;
-
     @ElementCollection
     @CollectionTable(
             name = "multiple_choice_options",
@@ -24,7 +21,6 @@ public class MultipleChoiceQuestion extends Question {
 
     public MultipleChoiceQuestion() {
         this.numAnswers = 4; // Default value
-        this.correctAnswer = 0; // Default value
     }
 
     public int getNumAnswers() {
@@ -33,14 +29,6 @@ public class MultipleChoiceQuestion extends Question {
 
     public void setNumAnswers(int numAnswers) {
         this.numAnswers = numAnswers;
-    }
-
-    public int getCorrectAnswer() {
-        return this.correctAnswer;
-    }
-
-    public void setCorrectAnswer(int correctAnswer) {
-        this.correctAnswer = correctAnswer;
     }
 
     public List<String> getOptions() {

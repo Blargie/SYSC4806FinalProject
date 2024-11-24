@@ -6,29 +6,105 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<div class="container mt-5">
-    <h2 th:text="'Survey: ' + ${survey.surveyName}"></h2>
-    <form th:action="@{/api/surveys/{surveyId}/submit(surveyId=${survey.surveyId})}" method="post">
-        <div th:each="question : ${survey.surveyQuestions}">
-            <div class="mb-3">
-                <label th:for="'question-' + ${question.questionId}" th:text="${question.questionText}"></label>
-                <div th:if="${question.type == 'TEXT'}">
-                    <input type="text" th:name="'question_' + ${question.questionId}" class="form-control" required>
+    <div class="container mt-5">
+        <h2 th:text="${survey.surveyName}"></h2>
+        <p class="text-muted" th:text="${survey.surveyDescription}"></p>
+        
+        <div class="card mb-4 p-3">
+            <form id="answerForm">
+                <input type="hidden" id="surveyId" th:value="${survey.surveyId}">
+                
+                <div th:each="question : ${survey.surveyQuestions}" class="mb-4 question-block">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${question.questionText}"></h5>
+                        <small class="text-danger" th:if="${question.required}">* Required</small>
+                        
+                        <!-- Text Question -->
+                        <div th:if="${question.type == 'TEXT'}" class="mb-3">
+                            <textarea th:data-question-id="${question.questionId}"
+                                    class="form-control answer-input"
+                                    th:required="${question.required}"
+                                    rows="3"></textarea>
+                        </div>
+                        
+                        <!-- Multiple Choice Question -->
+                        <div th:if="${question.type == 'MULTIPLE_CHOICE'}" class="mb-3">
+                            <div th:each="option, optStat : ${question.options}" class="form-check">
+                                <input type="radio"
+                                       th:data-question-id="${question.questionId}"
+                                       th:name="'question_' + ${question.questionId}"
+                                       th:value="${optStat.index}"
+                                       class="form-check-input answer-input"
+                                       th:required="${question.required}">
+                                <label class="form-check-label" th:text="${option}"></label>
+                            </div>
+                        </div>
+                        
+                        <!-- Numeric Range Question -->
+                        <div th:if="${question.type == 'NUMERIC_RANGE'}" class="mb-3">
+                            <input type="number"
+                                   th:data-question-id="${question.questionId}"
+                                   class="form-control answer-input"
+                                   th:required="${question.required}"
+                                   th:min="${question.lowerBound}"
+                                   th:max="${question.upperBound}">
+                            <small class="form-text text-muted" th:text="'Range: ' + ${question.lowerBound} + ' - ' + ${question.upperBound}"></small>
+                        </div>
+                    </div>
                 </div>
-                <div th:if="${question.type == 'MULTIPLE_CHOICE'}">
-                    <select th:name="'question_' + ${question.questionId}" class="form-control" required>
-                        <option th:each="option, iterStat : ${question.options}"
-                                th:value="${iterStat.index}"
-                                th:text="${option}"></option>
-                    </select>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary">Submit Answers</button>
+                    <a th:href="@{/api/surveys/list}" class="btn btn-secondary">Back to Surveys</a>
                 </div>
-                <div th:if="${question.type == 'NUMERIC_RANGE'}">
-                    <input type="number" th:name="'question_' + ${question.questionId}" class="form-control" required>
-                </div>
-            </div>
+            </form>
         </div>
-        <button type="submit" class="btn btn-primary">Submit Answers</button>
-    </form>
-</div>
+    </div>
+
+    <script>
+        document.getElementById('answerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const surveyId = document.getElementById('surveyId').value;
+            const answers = {};
+            
+            document.querySelectorAll('.answer-input').forEach(input => {
+                if (input.type === 'radio' && !input.checked) return;
+                
+                const questionId = input.dataset.questionId;
+                let value = input.value;
+                
+                if (input.type === 'number') {
+                    value = parseInt(value, 10);
+                }
+                
+                if (questionId && value !== '') {
+                    answers['question_' + questionId] = value;
+                }
+            });
+            
+            try {
+                const response = await fetch(`/api/surveys/${surveyId}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(answers)
+                });
+                
+                if (response.ok) {
+                    window.location.href = '/api/surveys/list';
+                } else {
+                    const error = await response.text();
+                    alert(error || 'Error submitting survey');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting survey');
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

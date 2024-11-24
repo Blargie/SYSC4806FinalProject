@@ -28,8 +28,19 @@ public abstract class Question {
     @JoinColumn(name = "survey_id")
     @JsonBackReference
     private Survey survey;
+        
+    @Column(nullable = false)
+    private boolean required = true;
 
-    // Getters and Setters
+
+    public boolean isRequired() {
+        return required;
+    }
+    
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
     public Integer getQuestionId() {
         return this.questionId;
     }
