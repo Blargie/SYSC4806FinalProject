@@ -41,13 +41,14 @@
                         </div>
                         
                         <!-- Numeric Range Question -->
-                        <div th:if="${question.type == 'NUMERICRANGE'}" class="mb-3">
+                        <div th:if="${question.type == 'NUMERIC_RANGE'}" class="mb-3">
                             <input type="number"
                                    th:data-question-id="${question.questionId}"
                                    class="form-control answer-input"
                                    th:required="${question.required}"
                                    th:min="${question.lowerBound}"
                                    th:max="${question.upperBound}">
+                            <small class="form-text text-muted" th:text="'Range: ' + ${question.lowerBound} + ' - ' + ${question.upperBound}"></small>
                         </div>
                     </div>
                 </div>
@@ -71,8 +72,13 @@
                 if (input.type === 'radio' && !input.checked) return;
                 
                 const questionId = input.dataset.questionId;
-                const value = input.value;
-                if (questionId && value) {
+                let value = input.value;
+                
+                if (input.type === 'number') {
+                    value = parseInt(value, 10);
+                }
+                
+                if (questionId && value !== '') {
                     answers['question_' + questionId] = value;
                 }
             });
