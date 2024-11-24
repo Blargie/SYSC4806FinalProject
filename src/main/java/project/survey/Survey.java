@@ -98,13 +98,6 @@ public class Survey {
         }
     }
 
-    public void clearQuestions() {
-        for (Question question : this.surveyQuestions) {
-            question.setSurvey(null);
-        }
-        this.surveyQuestions.clear();
-    }
-
     public void removeAllQuestions() {
         for (Question question : this.surveyQuestions) {
             question.setSurvey(null); // Unlink the question from the survey
