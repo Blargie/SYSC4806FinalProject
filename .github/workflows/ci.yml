@@ -1,0 +1,47 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on PR targeting the main branch
+
+jobs:
+  # Job for running unit tests
+  unit_tests:
+    runs-on: ubuntu-latest  # Run on the latest Ubuntu version
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Checkout the repository code
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'  # Set the Java version (adjust based on your project)
+        
+      - name: Install dependencies
+        run: ./mvnw install -DskipTests  # Adjust if using Maven/Gradle or a different package manager
+
+      - name: Run unit tests
+        run: ./mvnw test -Dtest=project.unit.*  # Run all unit tests in the "unit" folder and its subfolders
+
+  # Job for running integration tests
+  integration_tests:
+    runs-on: ubuntu-latest  # Run on the latest Ubuntu version
+    needs: unit_tests  # Run after the unit tests job is completed successfully
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Checkout the repository code
+        
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'  # Set the Java version (adjust based on your project)
+        
+      - name: Install dependencies
+        run: ./mvnw install -DskipTests  # Adjust if using Maven/Gradle or a different package manager
+
+      - name: Run integration tests
+        run: ./mvnw verify -Dtest=project.integration.*  # Run all integration tests in the "integration" folder
