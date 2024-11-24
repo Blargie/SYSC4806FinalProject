@@ -15,6 +15,8 @@ import project.question.QuestionRepository;
 import project.survey.Survey;
 import project.survey.SurveyRepository;
 
+import java.util.Date;
+
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -54,7 +56,7 @@ public class Integration {
         survey.setSurveyDescription("This is a test survey");
         survey.setIsAnonymous(true);
         survey.setExpirationDate(null);
-        survey.setCreatedAt(null);
+        survey.setCreatedAt(new Date());
         surveyRepository.save(survey);
 
         survey.setSurveyId(1);
@@ -64,12 +66,12 @@ public class Integration {
     @Test
     public void testDeleteSurvey() throws Exception{
         //Perform the DELETE request
-        mockMvc.perform(delete("/survey/1"))
+        mockMvc.perform(delete("/api/surveys/delete/1"))
                 .andExpect(status().isOk());
 
         //Verify the survey and questions were deleted
         assertFalse(surveyRepository.existsById(1));
         assertTrue(answerRepository.findBySurveyId(1).isEmpty());
-        //assertTrue(questionRepository.findBySurveyId(1).isEmpty());
+        assertTrue(questionRepository.findBySurveyId(1).isEmpty());
     }
 }

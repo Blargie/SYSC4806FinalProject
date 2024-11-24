@@ -60,6 +60,7 @@ public abstract class Question {
         this.questionText = questionText;
     }
 
+
     public void setSurvey(Survey survey) {
         this.survey = survey;
     }

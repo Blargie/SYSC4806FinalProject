@@ -131,20 +131,6 @@ class SurveyTest {
     }
 
     @Test
-    void clearQuestions() {
-        Survey survey = new Survey();
-        TextQuestion question = new TextQuestion();
-        MultipleChoiceQuestion question2 = new MultipleChoiceQuestion();
-        survey.addQuestion(question);
-        survey.addQuestion(question2);
-        assertEquals(2, survey.getSurveyQuestions().size());
-        survey.clearQuestions();
-        assertEquals(0, survey.getSurveyQuestions().size());
-        assertFalse(survey.getSurveyQuestions().contains(question));
-        assertFalse(survey.getSurveyQuestions().contains(question2));
-    }
-
-    @Test
     void removeAllQuestions() {
         Survey survey = new Survey();
         TextQuestion question = new TextQuestion();
@@ -152,7 +138,7 @@ class SurveyTest {
         survey.addQuestion(question);
         survey.addQuestion(question2);
         assertEquals(2, survey.getSurveyQuestions().size());
-        survey.clearQuestions();
+        survey.removeAllQuestions();
         assertEquals(0, survey.getSurveyQuestions().size());
         assertFalse(survey.getSurveyQuestions().contains(question));
         assertFalse(survey.getSurveyQuestions().contains(question2));

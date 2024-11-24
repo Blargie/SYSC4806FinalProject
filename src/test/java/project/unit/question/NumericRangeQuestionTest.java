@@ -1,6 +1,7 @@
 package project.unit.question;
 
 import org.junit.jupiter.api.Test;
+import project.question.MultipleChoiceQuestion;
 import project.question.NumericRangeQuestion;
 import project.survey.Survey;
 
