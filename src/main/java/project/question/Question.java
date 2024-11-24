@@ -32,7 +32,6 @@ public abstract class Question {
     @Column(nullable = false)
     private boolean required = true;
 
-
     public boolean isRequired() {
         return required;
     }
