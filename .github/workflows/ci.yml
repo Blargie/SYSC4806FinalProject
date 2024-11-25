@@ -29,7 +29,7 @@ jobs:
         run: ./mvnw install  # Ensure tests are not skipped
 
       - name: Run unit tests
-        run: ./mvnw test -Dtest=project.unit.*Test -Dsurefire.failIfNoSpecifiedTests=false  # Run all unit tests in the "project.unit" package
+        run: ./mvnw test -Dtest=project.unit.*  # Run all unit tests in the "project.unit" package
 
   # Job for running integration tests
   integration_tests:
@@ -52,4 +52,4 @@ jobs:
         run: ./mvnw install  # Ensure tests are not skipped
 
       - name: Run integration tests
-        run: ./mvnw test -Dtest=project.integration.*Test -Dsurefire.failIfNoSpecifiedTests=false  # Run all integration tests in the "project.integration" package
+        run: ./mvnw test -Dtest=project.integration.*  # Run all integration tests in the "project.integration" package
