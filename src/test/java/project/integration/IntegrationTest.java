@@ -1,11 +1,9 @@
 package project.integration;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,13 +16,12 @@ import project.survey.SurveyRepository;
 import java.util.Date;
 
 import static org.junit.Assert.assertTrue;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class Integration {
+public class IntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -38,7 +35,7 @@ public class Integration {
     private AnswerRepository answerRepository;
 
     @Autowired
-    public Integration(MockMvc mockMvc) {
+    public IntegrationTest(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
 
     }
