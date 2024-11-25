@@ -53,7 +53,7 @@ public class SurveyController {
             }
 
             // Now delete the survey
-            surveyRepository.delete(survey);
+            surveyRepository.deleteById(survey.getSurveyId());
             return ResponseEntity.ok("Survey deleted successfully");
 
         } catch (Exception e) {
@@ -99,7 +99,7 @@ public class SurveyController {
         return ResponseEntity.ok("Survey updated successfully");
     }
 
-    @GetMapping("/index")
+    @GetMapping("/home")
     public String showIndex() {
         return "index";
     }
