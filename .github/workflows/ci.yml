@@ -43,6 +43,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '20'  # Set the Java version (adjust based on your project)
+          distribution: 'temurin'
 
       - name: Grant execute permission to mvnw
         run: chmod +x ./mvnw
