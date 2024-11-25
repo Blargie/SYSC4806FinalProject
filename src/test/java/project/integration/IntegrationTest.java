@@ -14,9 +14,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import project.answer.AnswerRepository;
-import project.question.QuestionRepository;
-import project.question.TextQuestion;
+import project.answer.*;
+import project.question.*;
 import project.survey.Survey;
 import project.survey.SurveyController;
 import project.survey.SurveyRepository;
@@ -24,9 +23,7 @@ import org.springframework.http.MediaType;
 
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -216,7 +213,7 @@ public class IntegrationTest {
 
     @Test
     void getSurveyToAnswer() throws Exception {
-        when(surveyRepository.findBySurveyId(1)).thenReturn(List.of(survey));
+        when(surveyRepository.findById(1)).thenReturn(Optional.of(survey));
 
         mockMvc.perform(get("/api/surveys/1/answer")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -225,30 +222,70 @@ public class IntegrationTest {
                 .andExpect(view().name("answer-survey"))
                 .andExpect(status().isOk());
 
-        verify(surveyRepository, times(1)).findBySurveyId(1);
+        verify(surveyRepository, times(1)).findById(1);
     }
 
     @Test
     void listOpenSurveys() throws Exception {
+        when(surveyRepository.findByIsOpenTrue()).thenReturn(List.of(survey));
+
+        mockMvc.perform(get("/api/surveys/list-open")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(model().attributeExists("surveys"))
+                .andExpect(model().attribute("surveys", List.of(survey)))
+                .andExpect(view().name("survey-list"))
+                .andExpect(status().isOk());
+
+        verify(surveyRepository, times(1)).findByIsOpenTrue();
     }
 
     @Test
     void viewSurveyPage() throws Exception {
+        mockMvc.perform(get("/api/surveys/view-survey")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(view().name("ViewSurvey"))
+                .andExpect(status().isOk());
     }
 
     @Test
     void getAllSurveys() throws Exception {
+        when(surveyRepository.findAll()).thenReturn(List.of(survey));
+
+        mockMvc.perform(get("/api/surveys/list-json")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(surveyRepository, times(1)).findAll();
     }
 
     @Test
     void generateReport() throws Exception {
+        when(surveyRepository.findById(1)).thenReturn(Optional.of(survey));
+
+        mockMvc.perform(get("/api/surveys/1/generate")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(model().attributeExists("survey"))
+                .andExpect(model().attribute("survey", survey))
+                .andExpect(view().name("survey-report"))
+                .andExpect(status().isOk());
+
+        verify(surveyRepository, times(1)).findById(1);
     }
 
     @Test
     void toggleSurveyStatus() throws Exception {
+        when(surveyRepository.findById(1)).thenReturn(Optional.of(survey));
+
+        mockMvc.perform(post("/api/surveys/1/toggle-status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(Collections.singletonMap("isOpen", true))))
+                .andExpect(status().isOk());
+
+        verify(surveyRepository, times(1)).findById(1);
     }
 
     @Test
     void submitSurveyAnswers() throws Exception {
+        //ToDo: Milestone 3
     }
 }
