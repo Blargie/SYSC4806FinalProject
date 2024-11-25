@@ -7,6 +7,7 @@ import project.question.TextQuestion;
 import project.survey.Survey;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -160,8 +161,13 @@ class SurveyTest {
         Survey survey = new Survey();
         survey.setSurveyId(1);
         survey.setSurveyName("test");
+        survey.setSurveyDescription("test");
         survey.setIsOpen(true);
-        assertEquals("Survey{surveyId=1, surveyName='test', questionCount=0, isOpen=true}", survey.toString());
+        survey.setIsAnonymous(false);
+        survey.setCreatedAt(new Date());
+        survey.setExpirationDate(null);
+        survey.setIsOpen(true);
+        assertEquals("Survey{surveyId=1, surveyName='test', description='test', isOpen=true, isAnonymous=false, questionCount=0, createdAt=" + survey.getCreatedAt() + ", expirationDate=null}", survey.toString());
     }
 
     @Test
@@ -177,4 +183,5 @@ class SurveyTest {
         survey.setSurveyId(1);
         assertEquals(1, survey.hashCode());
     }
+    //ToDo Milestone3: Add more tests
 }
