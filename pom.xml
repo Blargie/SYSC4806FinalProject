@@ -82,10 +82,12 @@
                 <version>3.2.5</version>
                 <configuration>
                     <includes>
-                        <include>**/*Test.java</include>
+                        <include>**/unit/**/*.java</include>
+                        <include>**/integration/**/*.java</include>
                     </includes>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 </project>
