@@ -1,5 +1,5 @@
 # SYSC4806 Group Project
-Application: https://surveymonkey-be674bf9e661.herokuapp.com/api/surveys/index
+Application: https://surveymonkey-be674bf9e661.herokuapp.com/api/surveys/home
 ### What is Surveyor?
 
 Surveyor is a survey creation application that allows users to create, answer, and generate important data based off of data provided by other users.
