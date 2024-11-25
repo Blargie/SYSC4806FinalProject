@@ -183,4 +183,5 @@ class SurveyTest {
         survey.setSurveyId(1);
         assertEquals(1, survey.hashCode());
     }
+    //ToDo Milestone3: Add more tests
 }
