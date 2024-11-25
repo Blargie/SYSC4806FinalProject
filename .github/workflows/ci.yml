@@ -26,10 +26,10 @@ jobs:
         run: chmod +x ./mvnw
         
       - name: Install dependencies
-        run: ./mvnw install -DskipTests  # Adjust if using Maven/Gradle or a different package manager
+        run: ./mvnw install  # Ensure tests are not skipped
 
       - name: Run unit tests
-        run: ./mvnw test -Dtest=project.unit.*  # Run all unit tests in the "unit" folder and its subfolders
+        run: ./mvnw test -Dtest=project.unit.*Test  # Run all unit tests in the "project.unit" package
 
   # Job for running integration tests
   integration_tests:
@@ -48,7 +48,7 @@ jobs:
         run: chmod +x ./mvnw
         
       - name: Install dependencies
-        run: ./mvnw install -DskipTests  # Adjust if using Maven/Gradle or a different package manager
+        run: ./mvnw install  # Ensure tests are not skipped
 
       - name: Run integration tests
-        run: ./mvnw verify -Dtest=project.integration.*  # Run all integration tests in the "integration" folder
+        run: ./mvnw test -Dtest=project.integration.*Test  # Run all integration tests in the "project.integration" package
