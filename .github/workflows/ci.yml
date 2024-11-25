@@ -23,7 +23,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Grant execute permission to mvnw
-        run: +x ./mvnw
+        run: chmod +x ./mvnw
         
       - name: Install dependencies
         run: ./mvnw install -DskipTests  # Adjust if using Maven/Gradle or a different package manager
@@ -45,7 +45,7 @@ jobs:
           java-version: '20'  # Set the Java version (adjust based on your project)
 
       - name: Grant execute permission to mvnw
-        run: +x ./mvnw
+        run: chmod +x ./mvnw
         
       - name: Install dependencies
         run: ./mvnw install -DskipTests  # Adjust if using Maven/Gradle or a different package manager
