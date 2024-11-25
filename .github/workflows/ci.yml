@@ -14,12 +14,13 @@ jobs:
     runs-on: ubuntu-latest  # Run on the latest Ubuntu version
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2  # Checkout the repository code
+        uses: actions/checkout@v3  # Checkout the repository code
       
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
-          java-version: '11'  # Set the Java version (adjust based on your project)
+          java-version: '20'  # Set the Java version (adjust based on your project)
+          distribution: 'temurin'
         
       - name: Install dependencies
         run: ./mvnw install -DskipTests  # Adjust if using Maven/Gradle or a different package manager
@@ -33,12 +34,12 @@ jobs:
     needs: unit_tests  # Run after the unit tests job is completed successfully
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2  # Checkout the repository code
+        uses: actions/checkout@v3  # Checkout the repository code
         
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
-          java-version: '11'  # Set the Java version (adjust based on your project)
+          java-version: '20'  # Set the Java version (adjust based on your project)
         
       - name: Install dependencies
         run: ./mvnw install -DskipTests  # Adjust if using Maven/Gradle or a different package manager
