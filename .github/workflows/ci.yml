@@ -10,7 +10,7 @@ on:
 
 jobs:
   # Job for running unit tests
-  unit_tests:
+  run-tests:
     runs-on: ubuntu-latest  # Run on the latest Ubuntu version
     steps:
       - name: Checkout code
@@ -29,27 +29,9 @@ jobs:
         run: ./mvnw install  # Ensure tests are not skipped
 
       - name: Run unit tests
-        run: ./mvnw test -Dtest=project.unit.*  # Run all unit tests in the "project.unit" package
-
-  # Job for running integration tests
-  integration_tests:
-    runs-on: ubuntu-latest  # Run on the latest Ubuntu version
-    needs: unit_tests  # Run after the unit tests job is completed successfully
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3  # Checkout the repository code
-        
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '20'  # Set the Java version (adjust based on your project)
-          distribution: 'temurin'
-
-      - name: Grant execute permission to mvnw
-        run: chmod +x ./mvnw
-        
-      - name: Install dependencies
-        run: ./mvnw install  # Ensure tests are not skipped
+        run: ./mvnw clean test -Dtest=project.unit.*  # Run all unit tests in the "project.unit" package
 
       - name: Run integration tests
-        run: ./mvnw test -Dtest=project.integration.*  # Run all integration tests in the "project.integration" package
+        run: ./mvnw clean test -Dtest=project.integration.*  # Run all integration tests in the "project.integration" package
+
+ 
