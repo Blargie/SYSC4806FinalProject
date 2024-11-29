@@ -36,7 +36,7 @@ public class Survey {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JsonIgnoreProperties("survey")
+    //@JsonIgnoreProperties("survey")
     @JsonProperty("surveyQuestions")
     private List<Question> surveyQuestions = new ArrayList<>();
 
