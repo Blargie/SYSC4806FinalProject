@@ -1,32 +1,47 @@
 package project.question;
 
-import jakarta.persistence.*;
-
-@Entity
-@DiscriminatorValue("NUMERIC_RANGE")
-public class NumericRangeQuestion extends Question {
-
-    @Column(nullable = false)
-    private int lowerBound = 1;
-
-    @Column(nullable = false)
-    private int upperBound = 10;
-
-    public NumericRangeQuestion() {}
-
-    public int getLowerBound() {
-        return this.lowerBound;
+public class NumericRangeQuestion extends Question{
+    //Fields
+    private int nrqId;
+    private int questionId;
+    private int upperBound;
+    private int lowerBound;
+    //Constructor
+    public NumericRangeQuestion() { }
+    //Getters
+    public int getNrqId() {
+        return nrqId;
     }
-
+    public int getQuestionId() {
+        return questionId;
+    }
+    public int getUpperBound() {
+        return upperBound;
+    }
+    public int getLowerBound() {
+        return lowerBound;
+    }
+    //Setters
+    public void setNrqId(int nrqId) {
+        this.nrqId = nrqId;
+    }
+    public void setQuestionId(int questionId) {
+        this.questionId = questionId;
+    }
+    public void setUpperBound(int upperBound) {
+        this.upperBound = upperBound;
+    }
     public void setLowerBound(int lowerBound) {
         this.lowerBound = lowerBound;
     }
-
-    public int getUpperBound() {
-        return this.upperBound;
-    }
-
-    public void setUpperBound(int upperBound) {
-        this.upperBound = upperBound;
+    //Methods
+    @Override
+    public String toString() {
+        return "NumericRangeQuestion{" +
+                "nrqId=" + nrqId +
+                ", questionId=" + questionId +
+                ", upperBound=" + upperBound +
+                ", lowerBound=" + lowerBound +
+                '}';
     }
 }

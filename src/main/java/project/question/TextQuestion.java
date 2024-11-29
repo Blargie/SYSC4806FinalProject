@@ -1,21 +1,39 @@
 package project.question;
 
-import jakarta.persistence.*;
-
-@Entity
-@DiscriminatorValue("TEXT")
-public class TextQuestion extends Question {
-
-    @Column(nullable = false)
-    private int charLimit = 255; // Default value
-
-    public TextQuestion() {}
-
-    public int getCharLimit() {
-        return this.charLimit;
+public class TextQuestion {
+    //Fields
+    private int tqId;
+    private int questionId;
+    private int charLimit;
+    //Constructor
+    public TextQuestion() { }
+    //Getters
+    public int getTqId() {
+        return tqId;
     }
-
+    public int getQuestionId() {
+        return questionId;
+    }
+    public int getCharLimit() {
+        return charLimit;
+    }
+    //Setters
+    public void setTqId(int tqId) {
+        this.tqId = tqId;
+    }
+    public void setQuestionId(int questionId) {
+        this.questionId = questionId;
+    }
     public void setCharLimit(int charLimit) {
         this.charLimit = charLimit;
+    }
+    //Methods
+    @Override
+    public String toString() {
+        return "TextQuestion{" +
+                "tqId=" + tqId +
+                ", questionId=" + questionId +
+                ", charLimit=" + charLimit +
+                '}';
     }
 }

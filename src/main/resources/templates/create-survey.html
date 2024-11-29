@@ -190,18 +190,23 @@
             expirationDate: formattedExpirationDate || null,
             isAnonymous: document.getElementById('anonymousResponses').checked,
             isOpen: true,
-            surveyQuestions: []
         };
 
+        //Define surveyQuestions array
+        const surveyQuestions = [];
 
+
+        //Create Questions
         document.querySelectorAll('.question-block').forEach((block, index) => {
             const questionType = block.querySelector('.question-type').value;
             const questionText = block.querySelector('.question-text').value;
             const isRequired = block.querySelector('.question-required').checked;
+            let surveyId = 0;
 
             let question = {
-                questionText: questionText,
                 type: questionType,
+                questionText: questionText,
+                surveyId: surveyId,
                 required: isRequired
             };
 
@@ -231,14 +236,15 @@
             // Log the fully formed question object
             console.log('Final question object:', question);
 
-            survey.surveyQuestions.push(question);
+            //Add to list of survey questions
+            surveyQuestions.push(question);
         });
 
         // Form validation
         if (!validateSurveyForm(survey)) {
             return;
         }
-
+            //Push surveyQuestions to survey object
             try {
                 const response = await fetch('/survey/save-survey', {
                     method: 'POST',
@@ -251,6 +257,7 @@
                 if (response.ok) {
                     const savedSurvey = await response.json();
                     alert(savedSurvey.message);  // This will show "Survey created successfully"
+                    let surveyId = savedSurvey.surveyId;
                     window.location.href = '/survey/view-survey';
                 } else {
                     const errorData = await response.json();
@@ -261,6 +268,163 @@
                 console.error('Error:', error);
                 alert('Error creating survey');
             }
+
+
+        //
+        let questionId = 0;
+        for(let i = 0; i < surveyQuestions.length; i++) {
+            //Change the question details
+            surveyQuestions[i].surveyId = surveyId;
+            //POST the Question
+            try {
+                const response = await fetch('/survey/save-question', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(surveyQuestions[i])
+                });
+
+                if (response.ok) {
+                    const savedQuestion = await response.json();
+                    alert(savedQuestion.message);  // This will show "Question created successfully"
+                    questionId = savedQuestion.questionId;  //Get the questionId for the next step
+                } else {
+                    const errorData = await response.json();
+                    console.error('Server error:', errorData);
+                    alert(`Failed to create question: ${errorData.message || 'Unknown error'}`);
+
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating question');
+            }
+            //POST the Question details
+            //Check Type of Question
+            switch(surveyQuestions[i].type) {
+                case 'TEXT':
+                    //Create the TextQuestion
+                    let textQuestion = {
+                        questionId: questionId,
+                        charLimit: surveyQuestions[i].charLimit
+                    };
+                    //POST the TextQuestion
+                    try {
+                        const response = await fetch('/survey/save-tq', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(textQuestion)
+                        });
+
+                        if (response.ok) {
+                            const savedTextQuestion = await response.json();
+                            alert(savedTextQuestion.message);  // This will show "TextQuestion created successfully"
+                        } else {
+                            const errorData = await response.json();
+                            console.error('Server error:', errorData);
+                            alert(`Failed to create text question: ${errorData.message || 'Unknown error'}`);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error creating text question');
+                    }
+                    break
+                case 'MULTIPLE_CHOICE':
+                    //Variable
+                    let mcqId = 0;
+                    //Create the MultipleChoiceQuestion
+                    let multipleChoiceQuestion = {
+                        questionId: questionId,
+                        numAnswers: surveyQuestions[i].numAnswers
+                    };
+                    //POST the MultipleChoiceQuestion
+                    try {
+                        const response = await fetch('/survey/save-mcq', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(multipleChoiceQuestion)
+                        });
+
+                        if (response.ok) {
+                            const savedMultipleChoiceQuestion = await response.json();
+                            alert(savedMultipleChoiceQuestion.message);  // This will show "MultipleChoiceQuestion created successfully"
+                            mcqId = savedMultipleChoiceQuestion.mcqId;  //Get the mcqId for the next step
+                        } else {
+                            const errorData = await response.json();
+                            console.error('Server error:', errorData);
+                            alert(`Failed to create multiple choice question: ${errorData.message || 'Unknown error'}`);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error creating multiple choice question');
+                    }
+                    //POST the MultipleChoiceOptions
+                    for (let j = 0; j < surveyQuestions[i].numAnswers; j++) {
+                        //Create the MultipleChoiceOption
+                        let multipleChoiceOption = {
+                            mcqId: mcqId,
+                            optionText: surveyQuestions[i].options[j]
+                        };
+                        //POST the MultipleChoiceOption
+                        try {
+                            const response = await fetch('/survey/save-mcq-option', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(multipleChoiceOption)
+                            });
+
+                            if (response.ok) {
+                                const savedMultipleChoiceOption = await response.json();
+                                alert(savedMultipleChoiceOption.message);  // This will show "MultipleChoiceOption created successfully"
+                            } else {
+                                const errorData = await response.json();
+                                console.error('Server error:', errorData);
+                                alert(`Failed to create multiple choice option: ${errorData.message || 'Unknown error'}`);
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Error creating multiple choice option');
+                        }
+                    }
+                    break
+                case 'NUMERIC_RANGE':
+                    //Create the NumericRangeQuestion
+                    let numericRangeQuestion = {
+                        questionId: questionId,
+                        lowerBound: surveyQuestions[i].lowerBound,
+                        upperBound: surveyQuestions[i].upperBound
+                    };
+                    //POST the NumericRangeQuestion
+                    try {
+                        const response = await fetch('/survey/save-nrq', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(numericRangeQuestion)
+                        });
+
+                        if (response.ok) {
+                            const savedNumericRangeQuestion = await response.json();
+                            alert(savedNumericRangeQuestion.message);  // This will show "NumericRangeQuestion created successfully"
+                        } else {
+                            const errorData = await response.json();
+                            console.error('Server error:', errorData);
+                            alert(`Failed to create numeric range question: ${errorData.message || 'Unknown error'}`);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error creating numeric range question');
+                    }
+                    break
+            }
+        }
 });
 
 function validateSurveyForm(survey) {
@@ -277,7 +441,7 @@ function validateSurveyForm(survey) {
         }
     }
 
-    if (survey.surveyQuestions.length === 0) {
+    if (questionCount.length === 0) {
         alert('Survey must have at least one question');
         return false;
     }

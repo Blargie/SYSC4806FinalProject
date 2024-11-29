@@ -1,86 +1,47 @@
 package project.question;
 
-import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import project.survey.Survey;
-
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "dtype")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = TextQuestion.class, name = "TEXT"),
-        @JsonSubTypes.Type(value = MultipleChoiceQuestion.class, name = "MULTIPLE_CHOICE"),
-        @JsonSubTypes.Type(value = NumericRangeQuestion.class, name = "NUMERIC_RANGE")
-})
-public abstract class Question {
-
-    @Id
-    private Integer questionId;
-
-    @Column(nullable = false)
+public class Question {
+    //Fields
+    private int questionId;
     private String questionText;
+    private int surveyId;
+    private boolean required;
 
-    @ManyToOne
-    @JoinColumn(name = "survey_id")
-    private Survey survey;
-        
-    @Column(nullable = false)
-    private boolean required = true;
-
-    public boolean isRequired() {
+    //Constructor
+    public Question() { }
+    //Getters
+    public int getQuestionId() {
+        return questionId;
+    }
+    public String getQuestionText() {
+        return questionText;
+    }
+    public int getSurveyId() {
+        return surveyId;
+    }
+    public boolean getRequired() {
         return required;
     }
-    
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
-
-    public Integer getQuestionId() {
-        return this.questionId;
-    }
-
-    public String getQuestionText() {
-        return this.questionText;
-    }
-
-    public Survey getSurvey() {
-        return this.survey;
-    }
-
-    public void setQuestionId(Integer questionId) {
+    //Setters
+    public void setQuestionId(int questionId) {
         this.questionId = questionId;
     }
-
     public void setQuestionText(String questionText) {
         this.questionText = questionText;
     }
-
-
-    public void setSurvey(Survey survey) {
-        this.survey = survey;
+    public void setSurveyId(int surveyId) {
+        this.surveyId = surveyId;
     }
-
-    // getType method to help retrieve the question's type
-    public String getType() {
-        if (this instanceof TextQuestion) {
-            return "TEXT";
-        } else if (this instanceof MultipleChoiceQuestion) {
-            return "MULTIPLE_CHOICE";
-        } else if (this instanceof NumericRangeQuestion) {
-            return "NUMERIC_RANGE";
-        }
-        return "UNKNOWN";
+    public void setRequired(boolean required) {
+        this.required = required;
     }
-
+    //Methods
     @Override
     public String toString() {
         return "Question{" +
                 "questionId=" + questionId +
                 ", questionText='" + questionText + '\'' +
-                ", surveyId=" + survey.getSurveyId() +
+                ", surveyId=" + surveyId +
                 ", required=" + required +
                 '}';
     }

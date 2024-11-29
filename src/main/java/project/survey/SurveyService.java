@@ -22,7 +22,7 @@ public class SurveyService {
         this.restTemplate = restTemplate;
     }
 
-    //Methods (Create other methods to interact with the PostgREST API)
+    //Survey Methods
     public List<Survey> getSurveys() {
         ResponseEntity<Survey[]> response = restTemplate.getForEntity(apiBaseUrl + "/survey", Survey[].class);
         return Arrays.asList(response.getBody());

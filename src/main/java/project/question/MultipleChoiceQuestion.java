@@ -1,42 +1,39 @@
 package project.question;
 
-import jakarta.persistence.*;
-import java.util.List;
-import java.util.ArrayList;
-
-@Entity
-@DiscriminatorValue("MULTIPLE_CHOICE")
 public class MultipleChoiceQuestion extends Question {
-
-    @Column(nullable = false)
+    //Fields
+    private int mcqId;
+    private int questionId;
     private int numAnswers;
-
-    @ElementCollection
-    @CollectionTable(
-            name = "multiple_choice_options",
-            joinColumns = @JoinColumn(name = "question_id")
-    )
-    @Column(name = "option_text")
-    private List<String> options = new ArrayList<>();
-
-    public MultipleChoiceQuestion() {
-        this.numAnswers = 4; // Default value
+    //Constructor
+    public MultipleChoiceQuestion() { }
+    //Getters
+    public int getMcqId() {
+        return mcqId;
     }
-
+    public int getQuestionId() {
+        return questionId;
+    }
     public int getNumAnswers() {
-        return this.numAnswers;
+        return numAnswers;
     }
-
+    //Setters
+    public void setMcqId(int mcqId) {
+        this.mcqId = mcqId;
+    }
+    public void setQuestionId(int questionId) {
+        this.questionId = questionId;
+    }
     public void setNumAnswers(int numAnswers) {
         this.numAnswers = numAnswers;
     }
-
-    public List<String> getOptions() {
-        return this.options;
-    }
-
-    public void setOptions(List<String> options) {
-        this.options = options;
-        this.numAnswers = options.size();
+    //Methods
+    @Override
+    public String toString() {
+        return "MultipleChoiceQuestion{" +
+                "mcqId=" + mcqId +
+                ", questionId=" + questionId +
+                ", numAnswers=" + numAnswers +
+                '}';
     }
 }

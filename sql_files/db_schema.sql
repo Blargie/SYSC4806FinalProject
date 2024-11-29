@@ -15,15 +15,12 @@
 -- Survey Table Creation
 CREATE TABLE IF NOT EXISTS Survey (
     "surveyId" SERIAL PRIMARY KEY,
---     userId INT NOT NULL,
     "surveyName" VARCHAR(255) NOT NULL,
     "surveyDescription" VARCHAR(255),
     "isOpen" BOOLEAN NOT NULL,
     "isAnonymous" BOOLEAN,
     "expirationDate" TIMESTAMP,
     "createdAt" TIMESTAMP
-
---     FOREIGN KEY ("userId") REFERENCES User("userId")
 );
 -- Question Tables Creation
 CREATE TABLE IF NOT EXISTS Question (
