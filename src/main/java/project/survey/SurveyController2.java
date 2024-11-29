@@ -29,13 +29,14 @@ public class SurveyController2 {
     public String home() {
         return "home";
     }
-
+    
     //Create Survey
     @RequestMapping("/create-survey")
     public String createSurvey(Survey survey) {
         return "create-survey";
     }
-    @RequestMapping("/save-survey")
+
+    @PostMapping("/save-survey")
     public ResponseEntity<Map<String, String>> saveSurvey(@RequestBody Survey survey) {
         //Survey Modifications
         survey.setIsOpen(true);
