@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.Assert.assertTrue;
@@ -66,11 +67,11 @@ public class IntegrationTest {
         this.survey = new Survey();
         survey.setSurveyName("Test Survey");
         survey.setIsOpen(true);
-        survey.setUserId(1);
+//        survey.setUserId(1);
         survey.setSurveyDescription("This is a test survey");
         survey.setIsAnonymous(true);
         survey.setExpirationDate(null);
-        survey.setCreatedAt(new Date());
+        survey.setCreatedAt(LocalDateTime.now());
         surveyRepository.save(survey);
 
         survey.setSurveyId(1);
@@ -111,7 +112,7 @@ public class IntegrationTest {
         updatedSurvey.setSurveyDescription("Updated description");
         updatedSurvey.setIsOpen(true);
         updatedSurvey.setIsAnonymous(false);
-        updatedSurvey.setExpirationDate(new Date(System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000)); // 7 days from now
+        updatedSurvey.setExpirationDate(LocalDateTime.now()); // 7 days from now
 
         //Mock the surveyRepository
         when(surveyRepository.findById(1)).thenReturn(Optional.of(survey));
@@ -159,11 +160,11 @@ public class IntegrationTest {
         Survey newSurvey = new Survey();
         newSurvey.setSurveyName("Test Survey");
         newSurvey.setIsOpen(true);
-        newSurvey.setUserId(1);
+//        newSurvey.setUserId(1);
         newSurvey.setSurveyDescription("This is a test survey");
         newSurvey.setIsAnonymous(true);
         newSurvey.setExpirationDate(null);
-        newSurvey.setCreatedAt(new Date());
+        newSurvey.setCreatedAt(LocalDateTime.now());
 
         when(surveyRepository.findById(2)).thenReturn(Optional.of(newSurvey));
 

@@ -18,7 +18,6 @@ import project.survey.Survey;
 public abstract class Question {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer questionId;
 
     @Column(nullable = false)
@@ -26,7 +25,6 @@ public abstract class Question {
 
     @ManyToOne
     @JoinColumn(name = "survey_id")
-    @JsonBackReference
     private Survey survey;
         
     @Column(nullable = false)
@@ -75,5 +73,15 @@ public abstract class Question {
             return "NUMERIC_RANGE";
         }
         return "UNKNOWN";
+    }
+
+    @Override
+    public String toString() {
+        return "Question{" +
+                "questionId=" + questionId +
+                ", questionText='" + questionText + '\'' +
+                ", surveyId=" + survey.getSurveyId() +
+                ", required=" + required +
+                '}';
     }
 }

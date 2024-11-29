@@ -1,5 +1,6 @@
 package project.survey;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -113,7 +114,7 @@ public class SurveyController {
     @PostMapping("/save")
     public ResponseEntity<Survey> createSurvey(@RequestBody Survey survey) {
         survey.setIsOpen(true);
-        survey.setCreatedAt(new Date());
+        survey.setCreatedAt(LocalDateTime.now());
         Survey savedSurvey = surveyRepository.save(survey);
         return ResponseEntity.ok(savedSurvey);
     }
@@ -196,8 +197,7 @@ public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId
             return ResponseEntity.badRequest().body("Survey is closed");
         }
 
-        if (survey.getExpirationDate() != null &&
-                survey.getExpirationDate().before(new Date())) {
+        if (survey.getExpirationDate() != null && survey.getExpirationDate().isBefore(LocalDateTime.now())) {
             return ResponseEntity.badRequest().body("Survey has expired");
         }
 

@@ -6,6 +6,7 @@ import project.question.Question;
 import project.question.TextQuestion;
 import project.survey.Survey;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,12 +22,12 @@ class SurveyTest {
         assertEquals(1, survey.getSurveyId());
     }
 
-    @Test
-    void getUserId() {
-        Survey survey = new Survey();
-        survey.setUserId(1);
-        assertEquals(1, survey.getUserId());
-    }
+//    @Test
+//    void getUserId() {
+//        Survey survey = new Survey();
+//        survey.setUserId(1);
+//        assertEquals(1, survey.getUserId());
+//    }
 
     @Test
     void getSurveyName() {
@@ -60,13 +61,13 @@ class SurveyTest {
         assertNotNull(survey.getSurveyId());
     }
 
-    @Test
-    void setUserId() {
-        Survey survey = new Survey();
-        survey.setUserId(1);
-        assertNotNull(survey.getUserId());
-        assertEquals(1, survey.getUserId());
-    }
+//    @Test
+//    void setUserId() {
+//        Survey survey = new Survey();
+//        survey.setUserId(1);
+//        assertNotNull(survey.getUserId());
+//        assertEquals(1, survey.getUserId());
+//    }
 
     @Test
     void setSurveyName() {
@@ -164,7 +165,7 @@ class SurveyTest {
         survey.setSurveyDescription("test");
         survey.setIsOpen(true);
         survey.setIsAnonymous(false);
-        survey.setCreatedAt(new Date());
+        survey.setCreatedAt(LocalDateTime.now());
         survey.setExpirationDate(null);
         survey.setIsOpen(true);
         assertEquals("Survey{surveyId=1, surveyName='test', description='test', isOpen=true, isAnonymous=false, questionCount=0, createdAt=" + survey.getCreatedAt() + ", expirationDate=null}", survey.toString());

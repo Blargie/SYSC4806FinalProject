@@ -1,8 +1,10 @@
 package project.survey;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import project.question.Question;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
@@ -10,10 +12,10 @@ import java.util.Date;
 @Entity
 public class Survey {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
     private Integer surveyId;
 
-    private Integer userId;
+//    private Integer userId;
 
     @Column(nullable = false)
     private String surveyName;
@@ -27,19 +29,20 @@ public class Survey {
     @Column
     private boolean isAnonymous;
 
-    @Column
-    private Date expirationDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime expirationDate;
 
-    @Column(nullable = false)
-    private Date createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
+    @JsonIgnore
     private List<Question> surveyQuestions = new ArrayList<>();
 
     // Constructors
     public Survey() {
-        this.createdAt = new Date();
+        this.createdAt = LocalDateTime.now();
         this.isOpen = true;
         this.isAnonymous = false;
     }
@@ -54,9 +57,9 @@ public class Survey {
         return surveyId;
     }
 
-    public Integer getUserId() {
-        return userId;
-    }
+//    public Integer getUserId() {
+//        return userId;
+//    }
 
     public String getSurveyName() {
         return surveyName;
@@ -74,14 +77,15 @@ public class Survey {
         return isAnonymous;
     }
 
-    public Date getExpirationDate() {
+    public LocalDateTime getExpirationDate() {
         return expirationDate;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
+    @JsonIgnore
     public List<Question> getSurveyQuestions() {
         return surveyQuestions;
     }
@@ -91,9 +95,9 @@ public class Survey {
         this.surveyId = surveyId;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
+//    public void setUserId(Integer userId) {
+//        this.userId = userId;
+//    }
 
     public void setSurveyName(String surveyName) {
         this.surveyName = surveyName;
@@ -111,11 +115,11 @@ public class Survey {
         this.isAnonymous = isAnonymous;
     }
 
-    public void setExpirationDate(Date expirationDate) {
+    public void setExpirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -152,16 +156,19 @@ public class Survey {
         this.surveyQuestions.clear();
     }
 
+    @JsonIgnore
     public int getQuestionCount() {
         return this.surveyQuestions.size();
     }
 
     // Status Check Methods
+    @JsonIgnore
     public boolean isExpired() {
-        return expirationDate != null && expirationDate.before(new Date());
+        return expirationDate != null && expirationDate.isBefore(LocalDateTime.now());
     }
 
-    public boolean isActive() {
+    @JsonIgnore
+    public boolean isOpen() {
         return isOpen && !isExpired();
     }
 
@@ -171,12 +178,11 @@ public class Survey {
         return "Survey{" +
                 "surveyId=" + surveyId +
                 ", surveyName='" + surveyName + '\'' +
-                ", description='" + surveyDescription + '\'' +
+                ", surveyDescription='" + surveyDescription + '\'' +
                 ", isOpen=" + isOpen +
                 ", isAnonymous=" + isAnonymous +
-                ", questionCount=" + getQuestionCount() +
-                ", createdAt=" + createdAt +
                 ", expirationDate=" + expirationDate +
+                ", createdAt=" + createdAt +
                 '}';
     }
 

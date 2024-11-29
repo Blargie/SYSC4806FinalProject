@@ -11,9 +11,6 @@ public class MultipleChoiceAnswer extends Answer {
     @Column(length = 500)
     private String selectedOptionText; // The text of the selected option
 
-    @Column(nullable = false)
-    private boolean isCorrect; // Whether this answer matches the correct answer
-
     // Constructor
     public MultipleChoiceAnswer() {}
 
@@ -26,10 +23,6 @@ public class MultipleChoiceAnswer extends Answer {
         return this.selectedOptionText;
     }
 
-    public boolean getIsCorrect() {
-        return this.isCorrect;
-    }
-
     // Setters
     public void setSelectedChoice(int selectedChoice) {
         this.selectedChoice = selectedChoice;
@@ -39,7 +32,4 @@ public class MultipleChoiceAnswer extends Answer {
         this.selectedOptionText = selectedOptionText;
     }
 
-    public void setIsCorrect(boolean isCorrect) {
-        this.isCorrect = isCorrect;
-    }
 }
