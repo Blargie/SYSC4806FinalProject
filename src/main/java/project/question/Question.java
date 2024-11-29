@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import project.survey.Survey;
 
 @Entity
@@ -25,6 +27,7 @@ public abstract class Question {
 
     @ManyToOne
     @JoinColumn(name = "survey_id")
+    @JsonIgnoreProperties("surveyQuestions")
     private Survey survey;
         
     @Column(nullable = false)

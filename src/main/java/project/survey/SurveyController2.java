@@ -38,25 +38,14 @@ public class SurveyController2 {
 
     @PostMapping("/save-survey")
     public ResponseEntity<Map<String, String>> saveSurvey(@RequestBody Survey survey) {
-        //Survey Modifications
         survey.setIsOpen(true);
         survey.setIsAnonymous(true);
         survey.setCreatedAt(LocalDateTime.now());
-
-        // Print and Save the new survey
-        System.out.println(survey.toString());
-        surveyService.createSurvey(survey);
-
-        // Question Modifications
-        System.out.println(survey.getSurveyQuestions());
-        for (Question question : survey.getSurveyQuestions()) {
-            question.setSurvey(survey);
-            System.out.println(question.toString());
-        }
-
-        // Return the successful response
+    
+        Survey savedSurvey = surveyService.createSurvey(survey);
+    
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Survey created successfully");
+        response.put("message", "Survey created successfully with " + savedSurvey.getQuestionCount() + " questions");
         return ResponseEntity.ok(response);
     }
 

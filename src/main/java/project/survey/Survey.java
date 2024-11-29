@@ -36,8 +36,8 @@ public class Survey {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    @JsonIgnore
+    @JsonIgnoreProperties("survey")
+    @JsonProperty("surveyQuestions")
     private List<Question> surveyQuestions = new ArrayList<>();
 
     // Constructors
@@ -125,6 +125,9 @@ public class Survey {
 
     public void setSurveyQuestions(List<Question> surveyQuestions) {
         this.surveyQuestions = surveyQuestions;
+        for (Question question : surveyQuestions) {
+            question.setSurvey(this);
+        }
     }
 
     // Question Management Methods
