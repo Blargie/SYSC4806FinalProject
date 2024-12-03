@@ -131,7 +131,7 @@ public class SurveyController {
     public String listSurveys(Model model) {
         Iterable<Survey> surveys = surveyRepository.findAll();
         model.addAttribute("surveys", surveys);
-        return "survey-list"; // Name of the template above
+        return "survey-list-user"; // Name of the template above
     }
 
     @GetMapping("/{surveyId}/answer")
@@ -146,13 +146,13 @@ public class SurveyController {
     public String listOpenSurveys(Model model) {
         List<Survey> openSurveys = surveyRepository.findByIsOpenTrue();
         model.addAttribute("surveys", openSurveys);
-        return "survey-list"; // Ensure this points to the correct template
+        return "survey-list-user"; // Ensure this points to the correct template
     }
 
     // New mapping for View Survey page
-    @GetMapping("/view-survey")
+    @GetMapping("/survey-list-admin")
     public String viewSurveyPage() {
-        return "view-survey";
+        return "survey-list-admin";
     }
 
     // New method for returning JSON response

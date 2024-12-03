@@ -229,7 +229,7 @@
         if (response.ok) {
             const savedSurvey = await response.json();
             alert('Survey created successfully!');
-            window.location.href = '/api/surveys/view-survey';
+            window.location.href = '/api/surveys/survey-list-admin';
         } else {
             const errorData = await response.json();
             console.error('Server error:', errorData);

@@ -205,7 +205,7 @@ public class IntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(model().attributeExists("surveys"))
                 .andExpect(model().attribute("surveys", List.of(survey)))
-                .andExpect(view().name("survey-list"))
+                .andExpect(view().name("survey-list-user"))
                 .andExpect(status().isOk());
 
         verify(surveyRepository, times(1)).findAll();
@@ -233,7 +233,7 @@ public class IntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(model().attributeExists("surveys"))
                 .andExpect(model().attribute("surveys", List.of(survey)))
-                .andExpect(view().name("survey-list"))
+                .andExpect(view().name("survey-list-user"))
                 .andExpect(status().isOk());
 
         verify(surveyRepository, times(1)).findByIsOpenTrue();
@@ -241,9 +241,9 @@ public class IntegrationTest {
 
     @Test
     void viewSurveyPage() throws Exception {
-        mockMvc.perform(get("/api/surveys/view-survey")
+        mockMvc.perform(get("/api/surveys/survey-list-admin")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(view().name("view-survey"))
+                .andExpect(view().name("survey-list-admin"))
                 .andExpect(status().isOk());
     }
 

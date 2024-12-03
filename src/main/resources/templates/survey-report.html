@@ -7,11 +7,13 @@
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+  <div th:replace="~{navbar :: navbar}"></div>
+
 <h1>Survey Report</h1>
 <h2 id="survey-title"></h2>
 <div id="questions-container"></div>
 
-<button onclick="window.location.href='/api/surveys/view-survey'">Back to View Surveys</button>
+<button onclick="window.location.href='/api/surveys/survey-list-admin'">Back to View Surveys</button>
 
 <script>
   const surveyId = window.location.pathname.split("/")[3];
