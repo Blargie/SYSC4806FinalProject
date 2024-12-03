@@ -6,7 +6,8 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
+            <!-- Show all navigation items when user is logged in -->
+            <ul class="navbar-nav me-auto" th:if="${session.user != null}">
                 <li class="nav-item">
                     <a class="nav-link" href="/api/surveys/create">Create Survey</a>
                 </li>
@@ -17,8 +18,14 @@
                     <a class="nav-link" href="/api/surveys/survey-list-admin">View Surveys</a>
                 </li>
             </ul>
+            
+            <!-- Show only Answer Surveys when user is not logged in -->
+            <ul class="navbar-nav me-auto" th:unless="${session.user != null}">
+                <li class="nav-item">
+                    <a class="nav-link" href="/api/surveys/list-open">Answer Surveys</a>
+                </li>
+            </ul>
 
-       
             <!-- User is logged in -->
             <ul class="navbar-nav" th:if="${session.user != null}">
                 <li class="nav-item">
