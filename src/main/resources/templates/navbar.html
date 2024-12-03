@@ -4,7 +4,7 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        
+
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
@@ -17,14 +17,39 @@
                     <a class="nav-link" href="/api/surveys/survey-list-admin">View Surveys</a>
                 </li>
             </ul>
+
+       
+            <!-- User is logged in -->
+            <ul class="navbar-nav" th:if="${session.user != null}">
+                <li class="nav-item">
+                    <span class="nav-link" th:text="${session.user.username}"></span>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/user/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-link nav-link">Logout</button>
+                    </form>
+                </li>
+            </ul>
+
+            <!-- User is not logged in -->
+            <ul class="navbar-nav" th:unless="${session.user != null}">
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/register">Register</a>
+                </li>
+            </ul>
         </div>
     </div>
-    <script>document.addEventListener('DOMContentLoaded', function() {
-        const currentPath = window.location.pathname;
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
         });
-    });</script>
+    </script>
 </nav>

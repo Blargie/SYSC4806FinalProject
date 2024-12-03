@@ -41,10 +41,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let surveys = [];
 
     fetch('/api/surveys/list-json')
-        .then(response => response.json())
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = '/user/login';
+                return;
+            }
+            return response.json();
+        })
         .then(data => {
-            surveys = data;
-            renderSurveys(surveys);
+            if (data) {
+                surveys = data;
+                renderSurveys(surveys);
+            }
         })
         .catch(error => {
             console.error('Error fetching surveys:', error);
@@ -139,10 +147,18 @@ function deleteSurvey(id) {
     fetch(`/api/surveys/delete/${id}`, {
         method: 'DELETE'
     })
-    .then(response => response.text())
+    .then(response => {
+        if (response.status === 401) {
+            alert('Unauthorized: You can only delete your own surveys');
+            return;
+        }
+        return response.text();
+    })
     .then(result => {
-        alert(result);
-        location.reload();
+        if (result) {
+            alert(result);
+            location.reload();
+        }
     })
     .catch(error => {
         console.error('Error:', error);
