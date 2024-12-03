@@ -243,7 +243,7 @@ public class IntegrationTest {
     void viewSurveyPage() throws Exception {
         mockMvc.perform(get("/api/surveys/view-survey")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(view().name("ViewSurvey"))
+                .andExpect(view().name("view-survey"))
                 .andExpect(status().isOk());
     }
 

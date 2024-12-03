@@ -1,0 +1,30 @@
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/api/surveys/home">Survey System</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/api/surveys/create">Create Survey</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/api/surveys/list-open">Answer Surveys</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/api/surveys/view-survey">View Surveys</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script>document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    });</script>
+</nav>

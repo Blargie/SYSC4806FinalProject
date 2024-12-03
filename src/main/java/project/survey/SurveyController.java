@@ -152,7 +152,7 @@ public class SurveyController {
     // New mapping for View Survey page
     @GetMapping("/view-survey")
     public String viewSurveyPage() {
-        return "ViewSurvey";
+        return "view-survey";
     }
 
     // New method for returning JSON response
