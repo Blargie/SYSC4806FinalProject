@@ -50,20 +50,22 @@ public class SurveyController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteSurvey(@PathVariable Integer id, HttpSession session) {
         User user = (User) session.getAttribute("user");
+        
+        // First check if user is admin
         if (!isAdmin(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
+        
         try {
             Survey survey = surveyRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
-
-            // Check if the user owns this survey
-            if (!survey.getCreatorId().equals(user.getId())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You can only delete your own surveys");
+                .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
+                
+            // Check if admin owns this survey
+            if (!survey.getCreatorId().equals(user.getId().intValue())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Admins can only delete their own surveys");
             }
-
-            // Delete survey logic...
+            
             surveyRepository.deleteById(survey.getSurveyId());
             return ResponseEntity.ok("Survey deleted successfully");
         } catch (Exception e) {
@@ -182,12 +184,14 @@ public class SurveyController {
         return "survey-list-user";
     }
 
-    // New mapping for View Survey page
     @GetMapping("/survey-list-admin")
-    public String viewSurveyPage() {
-        return "survey-list-admin";
+public String viewSurveyPage(HttpSession session) {
+    if (!isAdmin(session)) {
+        return "redirect:/api/surveys/list-open";
     }
-
+    return "survey-list-admin";
+}
+    
     @GetMapping("/list-json")
     public ResponseEntity<List<Survey>> getAllSurveys(HttpSession session) {
         User user = (User) session.getAttribute("user");
