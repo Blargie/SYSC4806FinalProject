@@ -12,6 +12,7 @@ public abstract class Answer {
     public Integer userId;  //ToDo Milestone2: The id of the user who answered the question
     public Integer surveyId;
     public Integer questionId;
+    private String username;  // New field for username
 
     //Methods
     //Getters
@@ -26,6 +27,13 @@ public abstract class Answer {
     }
     public Integer getQuestionId() {
         return this.questionId;
+    }
+    public String getUsername() {
+        return this.username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
     //Setters
     public void setAnswerId(Integer answerId) {

@@ -36,6 +36,7 @@ public class SurveyController {
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
     private final UserRepository userRepository;
+
     @Autowired
     public SurveyController(SurveyRepository surveyRepository,
             AnswerRepository answerRepository, UserRepository userRepository,
@@ -155,10 +156,10 @@ public class SurveyController {
     public String getSurveyToAnswer(@PathVariable Integer surveyId, Model model) {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
-        
+
         User creator = userRepository.findById(Long.valueOf(survey.getCreatorId()))
                 .orElseThrow(() -> new IllegalArgumentException("Creator not found"));
-        
+
         model.addAttribute("survey", survey);
         model.addAttribute("creator", creator);
         return "answer-survey";
@@ -168,7 +169,7 @@ public class SurveyController {
     public String listOpenSurveys(Model model, HttpSession session) {
         List<Survey> openSurveys;
         User user = (User) session.getAttribute("user");
-        
+
         if (user == null) {
             // Not logged in - show only anonymous surveys
             openSurveys = surveyRepository.findByIsOpenTrueAndIsAnonymousTrue();
@@ -176,7 +177,7 @@ public class SurveyController {
             // Logged in - show all open surveys
             openSurveys = surveyRepository.findByIsOpenTrue();
         }
-        
+
         model.addAttribute("surveys", openSurveys);
         return "survey-list-user";
     }
@@ -200,7 +201,7 @@ public class SurveyController {
     }
 
     @GetMapping("/{surveyId}/generate")
-    public String generateReport(@PathVariable Integer surveyId, Model model,HttpSession session) {
+    public String generateReport(@PathVariable Integer surveyId, Model model, HttpSession session) {
         if (!isAdmin(session)) {
             return "redirect:/api/surveys/list-open";
         }
@@ -232,7 +233,7 @@ public class SurveyController {
     }
 
     // handles submitting survey answers
-        @PostMapping(value = "/{surveyId}/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{surveyId}/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> submitSurveyAnswers(
             @PathVariable Integer surveyId, 
             @RequestBody Map<String, String> answers,
@@ -245,6 +246,10 @@ public class SurveyController {
             return ResponseEntity.badRequest().body("Survey is closed");
         }
         
+        if (survey.getExpirationDate() != null && survey.getExpirationDate().before(new Date())) {
+            return ResponseEntity.badRequest().body("Survey has expired");
+        }
+    
         User currentUser = (User) session.getAttribute("user");
         
         for (Map.Entry<String, String> entry : answers.entrySet()) {
@@ -252,9 +257,11 @@ public class SurveyController {
             Question question = getQuestionById(questionId);
             Answer answer = createAnswerFromQuestion(entry, question);
             
-            // Set userId only for non-anonymous surveys and logged-in users
+            // Set username for non-anonymous surveys
             if (!survey.getIsAnonymous() && currentUser != null) {
-                answer.setUserId(currentUser.getId().intValue());
+                answer.setUsername(currentUser.getUsername());
+            } else {
+                answer.setUsername("Anonymous");
             }
             
             answer.setSurveyId(surveyId);

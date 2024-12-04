@@ -59,8 +59,8 @@
                                 <ul class="list-group">
                                     ${answers.map(answer => `
                                         <li class="list-group-item">
-                                            ${!survey.isAnonymous && answer.userId ? 
-                                                `<strong>User ${answer.userId}:</strong> ` : 
+                                            ${!survey.isAnonymous && answer.username ? 
+                                                `<strong>User ${answer.username}:</strong> ` : 
                                                 '<strong>Anonymous:</strong> '}
                                             ${formatAnswer(answer, question)}
                                         </li>
