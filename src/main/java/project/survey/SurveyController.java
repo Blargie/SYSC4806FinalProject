@@ -212,7 +212,7 @@ public class SurveyController {
     private Answer createAnswerFromQuestion(Map.Entry<String, String> entry, Question question) {
         Answer answer = null;
 
-        // create answer type based on questions type
+
         switch (question.getType()) {
             case "TEXT":
                 answer = new TextAnswer();
