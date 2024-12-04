@@ -210,6 +210,14 @@ public class SurveyController {
         return "survey-report"; // Ensure this matches the template name
     }
 
+    @GetMapping("/{surveyId}/answers/{questionId}")
+    public ResponseEntity<List<Answer>> getQuestionAnswers(
+            @PathVariable Integer surveyId,
+            @PathVariable Integer questionId) {
+        List<Answer> answers = answerRepository.findBySurveyIdAndQuestionId(surveyId, questionId);
+        return ResponseEntity.ok(answers);
+    }
+
     @PostMapping("/{surveyId}/toggle-status")
     public ResponseEntity<String> toggleSurveyStatus(@PathVariable Integer surveyId,
             @RequestBody Map<String, Boolean> request) {
@@ -224,35 +232,36 @@ public class SurveyController {
     }
 
     // handles submitting survey answers
-    @PostMapping(value = "/{surveyId}/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId,
+        @PostMapping(value = "/{surveyId}/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> submitSurveyAnswers(
+            @PathVariable Integer surveyId, 
             @RequestBody Map<String, String> answers,
-            @RequestParam(required = false) Integer userId) {
+            HttpSession session) {
+        
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
-
+                
         if (!survey.getIsOpen()) {
             return ResponseEntity.badRequest().body("Survey is closed");
         }
-
-        if (survey.getExpirationDate() != null &&
-                survey.getExpirationDate().before(new Date())) {
-            return ResponseEntity.badRequest().body("Survey has expired");
-        }
-
+        
+        User currentUser = (User) session.getAttribute("user");
+        
         for (Map.Entry<String, String> entry : answers.entrySet()) {
             Integer questionId = Integer.parseInt(entry.getKey().replace("question_", ""));
             Question question = getQuestionById(questionId);
             Answer answer = createAnswerFromQuestion(entry, question);
-
-            if (!survey.getIsAnonymous()) {
-                answer.setUserId(userId);
+            
+            // Set userId only for non-anonymous surveys and logged-in users
+            if (!survey.getIsAnonymous() && currentUser != null) {
+                answer.setUserId(currentUser.getId().intValue());
             }
+            
             answer.setSurveyId(surveyId);
             answer.setQuestionId(questionId);
             answerRepository.save(answer);
         }
-
+        
         return ResponseEntity.ok("Survey answers submitted successfully");
     }
 

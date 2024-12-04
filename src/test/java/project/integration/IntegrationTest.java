@@ -201,7 +201,7 @@ public class IntegrationTest {
     void listSurveys() throws Exception {
         when(surveyRepository.findAll()).thenReturn(List.of(survey));
 
-        mockMvc.perform(get("/api/surveys/list")
+        mockMvc.perform(get("/api/surveys/list-open")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(model().attributeExists("surveys"))
                 .andExpect(model().attribute("surveys", List.of(survey)))

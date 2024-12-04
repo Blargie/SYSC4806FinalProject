@@ -57,7 +57,7 @@
                 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button type="submit" class="btn btn-primary">Submit Answers</button>
-                    <a th:href="@{/api/surveys/list}" class="btn btn-secondary">Back to Surveys</a>
+                    <a th:href="@{/api/surveys/list-open}" class="btn btn-secondary">Back to Surveys</a>
                 </div>
             </form>
         </div>
@@ -65,46 +65,46 @@
 
     <script>
         document.getElementById('answerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const surveyId = document.getElementById('surveyId').value;
-            const answers = {};
-            
-            document.querySelectorAll('.answer-input').forEach(input => {
-                if (input.type === 'radio' && !input.checked) return;
-                
-                const questionId = input.dataset.questionId;
-                let value = input.value;
-                
-                if (input.type === 'number') {
-                    value = parseInt(value, 10);
-                }
-                
-                if (questionId && value !== '') {
-                    answers['question_' + questionId] = value;
-                }
-            });
-            
-            try {
-                const response = await fetch(`/api/surveys/${surveyId}/submit`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(answers)
-                });
-                
-                if (response.ok) {
-                    window.location.href = '/api/surveys/list';
-                } else {
-                    const error = await response.text();
-                    alert(error || 'Error submitting survey');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error submitting survey');
-            }
+    e.preventDefault();
+    
+    const surveyId = document.getElementById('surveyId').value;
+    const answers = {};
+    
+    document.querySelectorAll('.answer-input').forEach(input => {
+        if (input.type === 'radio' && !input.checked) return;
+        
+        const questionId = input.dataset.questionId;
+        let value = input.value;
+        
+        if (input.type === 'number') {
+            value = parseInt(value, 10);
+        }
+        
+        if (questionId && value !== '') {
+            answers['question_' + questionId] = value;
+        }
+    });
+    
+    try {
+        const response = await fetch(`/api/surveys/${surveyId}/submit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(answers)
         });
+        
+        if (response.ok) {
+            window.location.href = '/api/surveys/list-open';
+        } else {
+            const error = await response.text();
+            alert(error || 'Error submitting survey');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error submitting survey');
+    }
+});
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
