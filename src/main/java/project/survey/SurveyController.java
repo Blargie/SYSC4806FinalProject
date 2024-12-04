@@ -27,45 +27,48 @@ import project.answer.TextAnswer;
 import project.question.Question;
 import project.question.QuestionRepository;
 import project.user.User;
+import project.user.UserRepository;
+
 @Controller
 @RequestMapping("/api/surveys")
 public class SurveyController {
     private final SurveyRepository surveyRepository;
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
-
+    private final UserRepository userRepository;
     @Autowired
     public SurveyController(SurveyRepository surveyRepository,
-            AnswerRepository answerRepository,
+            AnswerRepository answerRepository, UserRepository userRepository,
             QuestionRepository questionRepository) {
         this.surveyRepository = surveyRepository;
         this.answerRepository = answerRepository;
+        this.userRepository = userRepository;
         this.questionRepository = questionRepository;
     }
 
     @DeleteMapping("/delete/{id}")
-public ResponseEntity<String> deleteSurvey(@PathVariable Integer id, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-    
-    try {
-        Survey survey = surveyRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
-            
-        // Check if the user owns this survey
-        if (!survey.getCreatorId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You can only delete your own surveys");
+    public ResponseEntity<String> deleteSurvey(@PathVariable Integer id, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (!isAdmin(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
-        // Delete survey logic...
-        surveyRepository.deleteById(survey.getSurveyId());
-        return ResponseEntity.ok("Survey deleted successfully");
-    } catch (Exception e) {
-        return ResponseEntity.status(500).body("Failed to delete survey");
+
+        try {
+            Survey survey = surveyRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
+
+            // Check if the user owns this survey
+            if (!survey.getCreatorId().equals(user.getId())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You can only delete your own surveys");
+            }
+
+            // Delete survey logic...
+            surveyRepository.deleteById(survey.getSurveyId());
+            return ResponseEntity.ok("Survey deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to delete survey");
+        }
     }
-}
 
     @GetMapping("/{surveyId}/edit")
     public String editSurvey(@PathVariable Integer surveyId, Model model) {
@@ -80,7 +83,10 @@ public ResponseEntity<String> deleteSurvey(@PathVariable Integer id, HttpSession
 
     @PostMapping("/{surveyId}/update")
     public ResponseEntity<String> updateSurvey(@PathVariable Integer surveyId,
-            @RequestBody Survey updatedSurvey) {
+            @RequestBody Survey updatedSurvey, HttpSession session) {
+        if (!isAdmin(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         Survey existingSurvey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
 
@@ -118,16 +124,17 @@ public ResponseEntity<String> deleteSurvey(@PathVariable Integer id, HttpSession
     @PostMapping("/save")
     public ResponseEntity<Survey> createSurvey(@RequestBody Survey survey, HttpSession session) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!isAdmin(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
+
         survey.setCreatorId(user.getId().intValue()); // Convert Long to Integer
         survey.setIsOpen(true);
         survey.setCreatedAt(new Date());
         Survey savedSurvey = surveyRepository.save(survey);
         return ResponseEntity.ok(savedSurvey);
     }
+
     @GetMapping("/{surveyId}")
     public ResponseEntity<Survey> getSurvey(@PathVariable Integer surveyId) {
         List<Survey> surveys = surveyRepository.findBySurveyId(surveyId);
@@ -148,7 +155,12 @@ public ResponseEntity<String> deleteSurvey(@PathVariable Integer id, HttpSession
     public String getSurveyToAnswer(@PathVariable Integer surveyId, Model model) {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+        
+        User creator = userRepository.findById(Long.valueOf(survey.getCreatorId()))
+                .orElseThrow(() -> new IllegalArgumentException("Creator not found"));
+        
         model.addAttribute("survey", survey);
+        model.addAttribute("creator", creator);
         return "answer-survey";
     }
 
@@ -166,21 +178,22 @@ public ResponseEntity<String> deleteSurvey(@PathVariable Integer id, HttpSession
     }
 
     @GetMapping("/list-json")
-public ResponseEntity<List<Survey>> getAllSurveys(HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity<List<Survey>> getAllSurveys(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<Survey> surveys = surveyRepository.findByCreatorId(user.getId().intValue());
+        surveys.forEach(survey -> survey.getSurveyQuestions().size()); // Trigger loading of questions
+        return ResponseEntity.ok(surveys);
     }
-    
-    List<Survey> surveys = surveyRepository.findByCreatorId(user.getId().intValue());
-    surveys.forEach(survey -> survey.getSurveyQuestions().size()); // Trigger loading of questions
-    return ResponseEntity.ok(surveys);
-}
-
-
 
     @GetMapping("/{surveyId}/generate")
-    public String generateReport(@PathVariable Integer surveyId, Model model) {
+    public String generateReport(@PathVariable Integer surveyId, Model model,HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/api/surveys/list-open";
+        }
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
         model.addAttribute("survey", survey);
@@ -202,9 +215,9 @@ public ResponseEntity<List<Survey>> getAllSurveys(HttpSession session) {
 
     // handles submitting survey answers
     @PostMapping(value = "/{surveyId}/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
-public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId,
-        @RequestBody Map<String, String> answers,
-        @RequestParam(required = false) Integer userId) {
+    public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId,
+            @RequestBody Map<String, String> answers,
+            @RequestParam(required = false) Integer userId) {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
 
@@ -255,6 +268,11 @@ public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId
         }
 
         return answer;
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        return user != null && user.getRole() == User.Role.ADMIN;
     }
 
     private Question getQuestionById(Integer questionId) {

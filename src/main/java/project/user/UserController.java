@@ -30,9 +30,7 @@ public class UserController {
         if (userRepository.findByUsername(user.getUsername()) != null) {
             return "redirect:/user/register?error=username_taken";
         }
-        
-        user.setRole(User.Role.USER);
-        userRepository.save(user);
+                userRepository.save(user);
         return "redirect:/user/login?registered";
     }
 
