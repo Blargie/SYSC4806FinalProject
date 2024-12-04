@@ -1,38 +1,44 @@
 package project.survey;
 
-import org.springframework.web.bind.annotation.*;
-import project.answer.Answer;
-import project.answer.TextAnswer;
-import project.answer.MultipleChoiceAnswer;
-import project.answer.NumericRangeAnswer;
-import project.answer.AnswerRepository;
-import project.question.Question;
-import project.question.QuestionRepository;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller  // Changed from @RestController
+import project.answer.Answer;
+import project.answer.AnswerRepository;
+import project.answer.MultipleChoiceAnswer;
+import project.answer.NumericRangeAnswer;
+import project.answer.TextAnswer;
+import project.question.Question;
+import project.question.QuestionRepository;
+
+@Controller
 @RequestMapping("/api/surveys")
 public class SurveyController {
     private final SurveyRepository surveyRepository;
-    @Autowired
-    private AnswerRepository answerRepository;
+    private final AnswerRepository answerRepository;
+    private final QuestionRepository questionRepository;
 
     @Autowired
-    private QuestionRepository questionRepository; // Inject QuestionRepository
-
-
-    @Autowired
-    public SurveyController(SurveyRepository surveyRepository) {
+    public SurveyController(SurveyRepository surveyRepository,
+            AnswerRepository answerRepository,
+            QuestionRepository questionRepository) {
         this.surveyRepository = surveyRepository;
+        this.answerRepository = answerRepository;
+        this.questionRepository = questionRepository;
     }
 
     @DeleteMapping("/delete/{id}")
@@ -47,7 +53,7 @@ public class SurveyController {
             }
 
             // Now delete the survey
-            surveyRepository.delete(survey);
+            surveyRepository.deleteById(survey.getSurveyId());
             return ResponseEntity.ok("Survey deleted successfully");
 
         } catch (Exception e) {
@@ -56,45 +62,47 @@ public class SurveyController {
         }
     }
 
-    @PostMapping("/{surveyId}/update")
-    public ResponseEntity<String> updateSurvey(@PathVariable Integer surveyId, @RequestBody Survey updatedSurvey) {
-        try {
-            Survey existingSurvey = surveyRepository.findById(surveyId)
-                    .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
+    @GetMapping("/{surveyId}/edit")
+    public String editSurvey(@PathVariable Integer surveyId, Model model) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
 
-            // Log incoming data
-            System.out.println("Received Survey Name: " + updatedSurvey.getSurveyName());
-            System.out.println("Received Survey Status: " + updatedSurvey.getIsOpen());
-            System.out.println("Received Questions: " + updatedSurvey.getSurveyQuestions());
-
-            // Update survey fields
-            existingSurvey.setSurveyName(updatedSurvey.getSurveyName() != null ? updatedSurvey.getSurveyName() : "");
-            existingSurvey.setIsOpen(updatedSurvey.getIsOpen());
-
-            // Clear existing questions and update with new ones
-            existingSurvey.removeAllQuestions();
-            if (updatedSurvey.getSurveyQuestions() != null) {
-                for (Question question : updatedSurvey.getSurveyQuestions()) {
-                    question.setSurvey(existingSurvey);
-                    existingSurvey.addQuestion(question);
-                }
-            }
-
-            surveyRepository.save(existingSurvey);
-            return ResponseEntity.ok("Survey updated successfully");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Failed to update survey");
-        }
+        // Load questions eagerly to prevent LazyInitializationException
+        survey.getSurveyQuestions().size();
+        model.addAttribute("survey", survey);
+        return "edit-survey";
     }
 
+    @PostMapping("/{surveyId}/update")
+    public ResponseEntity<String> updateSurvey(@PathVariable Integer surveyId,
+            @RequestBody Survey updatedSurvey) {
+        Survey existingSurvey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
 
-    @GetMapping("/index")
+        // Update basic survey information
+        existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
+        existingSurvey.setSurveyDescription(updatedSurvey.getSurveyDescription());
+        existingSurvey.setIsOpen(updatedSurvey.getIsOpen());
+        existingSurvey.setIsAnonymous(updatedSurvey.getIsAnonymous());
+        existingSurvey.setExpirationDate(updatedSurvey.getExpirationDate());
+
+        // Handle question updates
+        existingSurvey.removeAllQuestions();
+        if (updatedSurvey.getSurveyQuestions() != null) {
+            for (Question question : updatedSurvey.getSurveyQuestions()) {
+                question.setSurvey(existingSurvey);
+                existingSurvey.addQuestion(question);
+            }
+        }
+
+        surveyRepository.save(existingSurvey);
+        return ResponseEntity.ok("Survey updated successfully");
+    }
+
+    @GetMapping("/home")
     public String showIndex() {
         return "index";
     }
-
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
@@ -104,7 +112,8 @@ public class SurveyController {
 
     @PostMapping("/save")
     public ResponseEntity<Survey> createSurvey(@RequestBody Survey survey) {
-        survey.setIsOpen(true); // New surveys are open by default
+        survey.setIsOpen(true);
+        survey.setCreatedAt(new Date());
         Survey savedSurvey = surveyRepository.save(survey);
         return ResponseEntity.ok(savedSurvey);
     }
@@ -122,7 +131,7 @@ public class SurveyController {
     public String listSurveys(Model model) {
         Iterable<Survey> surveys = surveyRepository.findAll();
         model.addAttribute("surveys", surveys);
-        return "survey-list";  // Name of the template above
+        return "survey-list"; // Name of the template above
     }
 
     @GetMapping("/{surveyId}/answer")
@@ -140,7 +149,6 @@ public class SurveyController {
         return "survey-list"; // Ensure this points to the correct template
     }
 
-
     // New mapping for View Survey page
     @GetMapping("/view-survey")
     public String viewSurveyPage() {
@@ -155,14 +163,6 @@ public class SurveyController {
         return ResponseEntity.ok(surveys);
     }
 
-    @GetMapping("/{surveyId}/edit")
-    public String editSurvey(@PathVariable Integer surveyId, Model model) {
-        Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
-        model.addAttribute("survey", survey);
-        return "edit-survey"; // Ensure this matches the template name
-    }
-
     @GetMapping("/{surveyId}/generate")
     public String generateReport(@PathVariable Integer surveyId, Model model) {
         Survey survey = surveyRepository.findById(surveyId)
@@ -172,7 +172,8 @@ public class SurveyController {
     }
 
     @PostMapping("/{surveyId}/toggle-status")
-    public ResponseEntity<String> toggleSurveyStatus(@PathVariable Integer surveyId, @RequestBody Map<String, Boolean> request) {
+    public ResponseEntity<String> toggleSurveyStatus(@PathVariable Integer surveyId,
+            @RequestBody Map<String, Boolean> request) {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
 
@@ -184,35 +185,42 @@ public class SurveyController {
     }
 
     // handles submitting survey answers
-    @PostMapping("/{surveyId}/submit")
-    public String submitSurveyAnswers(@PathVariable Integer surveyId, @RequestParam Map<String, String> answers) {
+    @PostMapping(value = "/{surveyId}/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId,
+        @RequestBody Map<String, String> answers,
+        @RequestParam(required = false) Integer userId) {
         Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
+                .orElseThrow(() -> new IllegalArgumentException("Survey not found"));
 
-        // Iterate answers and create the correct type
+        if (!survey.getIsOpen()) {
+            return ResponseEntity.badRequest().body("Survey is closed");
+        }
+
+        if (survey.getExpirationDate() != null &&
+                survey.getExpirationDate().before(new Date())) {
+            return ResponseEntity.badRequest().body("Survey has expired");
+        }
+
         for (Map.Entry<String, String> entry : answers.entrySet()) {
-            Integer questionId = Integer.parseInt(entry.getKey().replace("question_", ""));  // Extract question ID
-            Question question = getQuestionById(questionId);  // Get question details
+            Integer questionId = Integer.parseInt(entry.getKey().replace("question_", ""));
+            Question question = getQuestionById(questionId);
+            Answer answer = createAnswerFromQuestion(entry, question);
 
-            Answer answer = createAnswerFromQuestion(entry, question);  // create answer type
-
-            Integer userId = 1;
-            answer.setUserId(userId);
+            if (!survey.getIsAnonymous()) {
+                answer.setUserId(userId);
+            }
             answer.setSurveyId(surveyId);
             answer.setQuestionId(questionId);
-
-            //save to ANSWER database
             answerRepository.save(answer);
         }
 
-        return "redirect:/api/surveys/list"; // redirect user back to survey list after they answer
-
+        return ResponseEntity.ok("Survey answers submitted successfully");
     }
 
     private Answer createAnswerFromQuestion(Map.Entry<String, String> entry, Question question) {
         Answer answer = null;
 
-
+        // create answer type based on questions type
         switch (question.getType()) {
             case "TEXT":
                 answer = new TextAnswer();
@@ -238,11 +246,8 @@ public class SurveyController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid question ID"));
     }
 
-
     private Integer getQuestionIdFromEntry(Map.Entry<String, String> entry) {
-        return Integer.parseInt(entry.getKey());  // convert key to question ID
+        return Integer.parseInt(entry.getKey()); // convert key to question ID
     }
 
-    //test
-    //http://localhost:8080/api/surveys/index
 }
