@@ -6,30 +6,28 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Show all navigation items when user is logged in -->
+            <!-- Navigation for logged-in users -->
             <ul class="navbar-nav me-auto" th:if="${session.user != null}">
-                <li class="nav-item">
+                <!-- Admin-only navigation items -->
+                <li class="nav-item"
+                    th:if="${session.user.role != null && session.user.role == T(project.user.User.Role).ADMIN}">
                     <a class="nav-link" href="/api/surveys/create">Create Survey</a>
                 </li>
+                <!-- Available to all users -->
                 <li class="nav-item">
                     <a class="nav-link" href="/api/surveys/list-open">Answer Surveys</a>
                 </li>
-                <li class="nav-item">
+                <!-- Admin-only navigation items -->
+                <li class="nav-item"
+                    th:if="${session.user.role != null && session.user.role == T(project.user.User.Role).ADMIN}">
                     <a class="nav-link" href="/api/surveys/survey-list-admin">View Surveys</a>
-                </li>
-            </ul>
-            
-            <!-- Show only Answer Surveys when user is not logged in -->
-            <ul class="navbar-nav me-auto" th:unless="${session.user != null}">
-                <li class="nav-item">
-                    <a class="nav-link" href="/api/surveys/list-open">Answer Surveys</a>
                 </li>
             </ul>
 
             <!-- User is logged in -->
             <ul class="navbar-nav" th:if="${session.user != null}">
                 <li class="nav-item">
-                    <span class="nav-link" th:text="${session.user.username}"></span>
+                    <span class="nav-link" th:text="${session.user.username + ' (' + session.user.role + ')'}"></span>
                 </li>
                 <li class="nav-item">
                     <form th:action="@{/user/logout}" method="post" class="d-inline">
@@ -39,7 +37,13 @@
             </ul>
 
             <!-- User is not logged in -->
-            <ul class="navbar-nav" th:unless="${session.user != null}">
+            <ul class="navbar-nav me-auto" th:unless="${session.user != null}">
+                <li class="nav-item ms-auto">
+                    <a class="nav-link" href="/api/surveys/list-open">Answer Surveys</a>
+                </li>
+
+            </ul>
+            <ul class="navbar-nav ms-auto" th:unless="${session.user != null}">
                 <li class="nav-item">
                     <a class="nav-link" href="/user/login">Login</a>
                 </li>

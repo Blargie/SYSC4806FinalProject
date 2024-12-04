@@ -34,11 +34,14 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title survey-name" th:text="${survey.surveyName}">Survey Name</h5>
-                        <span class="badge"
-                              th:classappend="${survey.isOpen ? 'bg-success' : 'bg-danger'}"
-                              th:text="${survey.isOpen ? 'Open' : 'Closed'}">Status</span>
+                        <div>
+                            <span class="badge"
+                                  th:classappend="${survey.isOpen ? 'bg-success' : 'bg-danger'}"
+                                  th:text="${survey.isOpen ? 'Open' : 'Closed'}">Status</span>
+                            <span class="badge bg-info ms-2" th:if="${survey.isAnonymous}">Anonymous</span>
+                        </div>
                     </div>
-
+                    
                     <p class="card-text">
                         <small class="text-muted"
                                th:text="'Questions: ' + ${survey.surveyQuestions.size()}">

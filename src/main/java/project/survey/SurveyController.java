@@ -165,10 +165,20 @@ public class SurveyController {
     }
 
     @GetMapping("/list-open")
-    public String listOpenSurveys(Model model) {
-        List<Survey> openSurveys = surveyRepository.findByIsOpenTrue();
+    public String listOpenSurveys(Model model, HttpSession session) {
+        List<Survey> openSurveys;
+        User user = (User) session.getAttribute("user");
+        
+        if (user == null) {
+            // Not logged in - show only anonymous surveys
+            openSurveys = surveyRepository.findByIsOpenTrueAndIsAnonymousTrue();
+        } else {
+            // Logged in - show all open surveys
+            openSurveys = surveyRepository.findByIsOpenTrue();
+        }
+        
         model.addAttribute("surveys", openSurveys);
-        return "survey-list-user"; // Ensure this points to the correct template
+        return "survey-list-user";
     }
 
     // New mapping for View Survey page
