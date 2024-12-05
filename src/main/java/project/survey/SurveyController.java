@@ -17,11 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import project.answer.Answer;
-import project.answer.AnswerRepository;
-import project.answer.MultipleChoiceAnswer;
-import project.answer.NumericRangeAnswer;
-import project.answer.TextAnswer;
+import project.answer.*;
 import project.question.Question;
 import project.question.QuestionRepository;
 
@@ -220,7 +216,6 @@ public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId
     private Answer createAnswerFromQuestion(Map.Entry<String, String> entry, Question question) {
         Answer answer = null;
 
-        // create answer type based on questions type
         switch (question.getType()) {
             case "TEXT":
                 answer = new TextAnswer();
@@ -233,6 +228,10 @@ public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId
             case "NUMERIC_RANGE":
                 answer = new NumericRangeAnswer();
                 ((NumericRangeAnswer) answer).setChoice(Integer.parseInt(entry.getValue()));
+                break;
+            case "SLIDER":
+                answer = new SliderAnswer();
+                ((SliderAnswer) answer).setSliderValue(Integer.parseInt(entry.getValue()));  // Set the slider value
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported question type: " + question.getType());
@@ -251,3 +250,4 @@ public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId
     }
 
 }
+//http://localhost:8080
