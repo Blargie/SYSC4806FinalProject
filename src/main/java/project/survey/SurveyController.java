@@ -1,8 +1,7 @@
 package project.survey;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -22,8 +21,7 @@ import project.answer.AnswerRepository;
 import project.answer.MultipleChoiceAnswer;
 import project.answer.NumericRangeAnswer;
 import project.answer.TextAnswer;
-import project.question.Question;
-import project.question.QuestionRepository;
+import project.question.*;
 
 @Controller
 @RequestMapping("/api/surveys")
@@ -163,13 +161,94 @@ public class SurveyController {
         return ResponseEntity.ok(surveys);
     }
 
+
+
     @GetMapping("/{surveyId}/generate")
     public String generateReport(@PathVariable Integer surveyId, Model model) {
+        // Fetch the survey and associated questions
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid survey ID"));
         model.addAttribute("survey", survey);
-        return "survey-report"; // Ensure this matches the template name
+
+        // Fetch answers for the survey
+        List<Answer> answers = answerRepository.findBySurveyId(surveyId);
+
+        // Debugging outputs
+        System.out.println("Survey: " + survey.getSurveyName());
+        System.out.println("Questions: " + survey.getSurveyQuestions());
+        System.out.println("Answers: " + answers);
+
+        // Prepare data for each question
+        Map<Integer, Object> reportData = new HashMap<>();
+        for (Question question : survey.getSurveyQuestions()) {
+            if (question == null) continue; // Skip null questions for safety
+
+            if (question instanceof TextQuestion) {
+                List<String> textAnswers = answers.stream()
+                        .filter(answer -> answer instanceof TextAnswer &&
+                                answer.getQuestionId() != null &&
+                                answer.getQuestionId().equals(question.getQuestionId()))
+                        .map(answer -> ((TextAnswer) answer).getText())
+                        .toList();
+                reportData.put(question.getQuestionId(), textAnswers);
+
+            } else if (question instanceof NumericRangeQuestion) {
+                List<Integer> numericAnswers = answers.stream()
+                        .filter(answer -> answer instanceof NumericRangeAnswer &&
+                                answer.getQuestionId() != null &&
+                                answer.getQuestionId().equals(question.getQuestionId()))
+                        .map(answer -> ((NumericRangeAnswer) answer).getChoice())
+                        .filter(Objects::nonNull)
+                        .toList();
+
+                if (!numericAnswers.isEmpty()) {
+                    Map<Integer, Long> histogram = numericAnswers.stream()
+                            .collect(Collectors.groupingBy(choice -> choice, Collectors.counting()));
+                    reportData.put(question.getQuestionId(), histogram);
+                } else {
+                    reportData.put(question.getQuestionId(), Map.of());
+                }
+
+            } else if (question instanceof MultipleChoiceQuestion) {
+                List<String> mcAnswers = answers.stream()
+                        .filter(answer -> {
+                            boolean isMC = answer instanceof MultipleChoiceAnswer;
+                            if (isMC) {
+                                System.out.println("Answer Question ID: " + answer.getQuestionId() + " | Current Question ID: " + question.getQuestionId());
+                            }
+                            return isMC &&
+                                    answer.getQuestionId() != null &&
+                                    answer.getQuestionId().equals(question.getQuestionId());
+                        })
+                        .map(answer -> ((MultipleChoiceAnswer) answer).getSelectedOptionText())
+                        .filter(Objects::nonNull)
+                        .toList();
+
+
+                if (!mcAnswers.isEmpty()) {
+                    Map<String, Long> pieData = mcAnswers.stream()
+                            .collect(Collectors.groupingBy(answer -> answer, Collectors.counting()));
+                    reportData.put(question.getQuestionId(), pieData);
+                    System.out.println("Pie Chart Data for Question ID " + question.getQuestionId() + ": " + pieData);
+                } else {
+                    System.out.println("No multiple-choice answers found for Question ID " + question.getQuestionId());
+                }
+
+            }
+
+        }
+
+        // Debug final data for verification
+        System.out.println("Final Report Data: " + reportData);
+
+        // Add data to the model
+        model.addAttribute("reportData", reportData);
+        model.addAttribute("questions", survey.getSurveyQuestions());
+
+        return "survey-report"; // Ensure template name matches file in templates directory
     }
+
+
 
     @PostMapping("/{surveyId}/toggle-status")
     public ResponseEntity<String> toggleSurveyStatus(@PathVariable Integer surveyId,
@@ -220,26 +299,48 @@ public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId
     private Answer createAnswerFromQuestion(Map.Entry<String, String> entry, Question question) {
         Answer answer = null;
 
-        // create answer type based on questions type
+        // create answer type based on question's type
         switch (question.getType()) {
             case "TEXT":
                 answer = new TextAnswer();
                 ((TextAnswer) answer).setText(entry.getValue());
                 break;
+
             case "MULTIPLE_CHOICE":
-                answer = new MultipleChoiceAnswer();
-                ((MultipleChoiceAnswer) answer).setSelectedChoice(Integer.parseInt(entry.getValue()));
+                MultipleChoiceAnswer mcAnswer = new MultipleChoiceAnswer();
+                int selectedChoice = Integer.parseInt(entry.getValue());
+                mcAnswer.setSelectedChoice(selectedChoice);
+
+                // Populate selectedOptionText from List<String> options
+                if (question instanceof MultipleChoiceQuestion) {
+                    MultipleChoiceQuestion mcQuestion = (MultipleChoiceQuestion) question;
+                    List<String> options = mcQuestion.getOptions(); // Assuming options are a List<String>
+                    if (selectedChoice >= 0 && selectedChoice < options.size()) {
+                        String selectedOptionText = options.get(selectedChoice);
+                        mcAnswer.setSelectedOptionText(selectedOptionText);
+                    } else {
+                        throw new IllegalArgumentException("Invalid selected choice index");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Question is not of type MultipleChoiceQuestion");
+                }
+
+                answer = mcAnswer;
                 break;
+
             case "NUMERIC_RANGE":
                 answer = new NumericRangeAnswer();
                 ((NumericRangeAnswer) answer).setChoice(Integer.parseInt(entry.getValue()));
                 break;
+
             default:
                 throw new IllegalArgumentException("Unsupported question type: " + question.getType());
         }
 
         return answer;
     }
+
+
 
     private Question getQuestionById(Integer questionId) {
         return questionRepository.findById(questionId)
@@ -249,5 +350,6 @@ public ResponseEntity<String> submitSurveyAnswers(@PathVariable Integer surveyId
     private Integer getQuestionIdFromEntry(Map.Entry<String, String> entry) {
         return Integer.parseInt(entry.getKey()); // convert key to question ID
     }
+
 
 }

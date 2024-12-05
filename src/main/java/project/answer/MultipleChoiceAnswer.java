@@ -23,6 +23,7 @@ public class MultipleChoiceAnswer extends Answer {
     }
 
     public String getSelectedOptionText() {
+        System.out.println("selectedOptionText Value: " + this.selectedOptionText); // Debugging log
         return this.selectedOptionText;
     }
 
@@ -36,6 +37,7 @@ public class MultipleChoiceAnswer extends Answer {
     }
 
     public void setSelectedOptionText(String selectedOptionText) {
+        System.out.println("Setting selectedOptionText to: " + selectedOptionText); // Debugging log
         this.selectedOptionText = selectedOptionText;
     }
 

@@ -4,35 +4,130 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Survey Report</title>
-  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1, h2, h3, h4 {
+      margin-bottom: 10px;
+    }
+    ul {
+      margin-left: 20px;
+      list-style-type: disc;
+    }
+    canvas {
+      margin: 20px 0;
+    }
+    .chart-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+  </style>
 </head>
 <body>
-<h1>Survey Report</h1>
-<h2 id="survey-title"></h2>
-<div id="questions-container"></div>
+<h1>Survey Report: <span th:text="${survey.surveyName}"></span></h1>
 
-<button onclick="window.location.href='/api/surveys/view-survey'">Back to View Surveys</button>
+<div>
+  <h2>Questions and Answers</h2>
+  <div th:each="question : ${questions}">
+    <div>
+      <!-- Display question text with type -->
+      <h3>
+        <span th:text="${question.questionText}"></span>
+        (<span th:text="${question.type}"></span>)
+      </h3>
 
-<script>
-  const surveyId = window.location.pathname.split("/")[3];
+      <!-- For Text Questions -->
+      <div th:if="${question.type == 'TEXT'}">
+        <h4>Answers:</h4>
+        <ul>
+          <li th:each="answer : ${reportData[question.questionId]}" th:text="${answer}"></li>
+        </ul>
+      </div>
 
-  // Fetch survey details and answers
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch(`/api/surveys/${surveyId}`)
-            .then(response => response.json())
-            .then(data => {
-              document.getElementById('survey-title').textContent = data.surveyName;
-              const questionsContainer = document.getElementById('questions-container');
-              data.surveyQuestions.forEach(question => {
-                const questionDiv = document.createElement('div');
-                questionDiv.innerHTML = `
-                            <h3>${question.questionText}</h3>
-                            <p>Type: ${question.type}</p>
-                        `;
-                questionsContainer.appendChild(questionDiv);
-              });
+      <!-- For Numeric Range Questions -->
+      <div th:if="${question.type == 'NUMERIC_RANGE'}">
+        <h4>Histogram of Responses:</h4>
+        <div class="chart-container">
+          <canvas id="histogram-${question.questionId}" width="400" height="300"></canvas>
+        </div>
+        <script th:inline="javascript">
+          /*<![CDATA[*/
+          const histogramData = /*[[${reportData[question.questionId]}]]*/ {};
+          console.log("Histogram Data for Question ID ${question.questionId}: ", histogramData);
+
+          const histogramLabels = Object.keys(histogramData);
+          const histogramCounts = Object.values(histogramData);
+
+          if (histogramLabels.length > 0) {
+            new Chart(document.getElementById("histogram-${question.questionId}").getContext("2d"), {
+              type: 'bar',
+              data: {
+                labels: histogramLabels,
+                datasets: [{
+                  label: 'Frequency',
+                  data: histogramCounts,
+                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  borderWidth: 1
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: { beginAtZero: true }
+                }
+              }
             });
-  });
-</script>
+          } else {
+            console.log("No data available for histogram with Question ID ${question.questionId}");
+          }
+          /*]]>*/
+        </script>
+      </div>
+
+      <!-- For Multiple Choice Questions -->
+      <div th:if="${question.type == 'MULTIPLE_CHOICE'}">
+        <h4>Pie Chart of Answers:</h4>
+        <div class="chart-container" style="width: 600px; height: 600px; margin: 0 auto;">
+          <canvas id="pie-${question.questionId}" width="300" height="300"></canvas>
+        </div>
+
+        <script th:inline="javascript">
+          /*<![CDATA[*/
+          const pieData = /*[[${reportData[question.questionId]}]]*/ {};
+          const labels = Object.keys(pieData); // Extract answer options as labels
+          const values = Object.values(pieData); // Extract counts as data
+
+          if (labels.length > 0) {
+            new Chart(document.getElementById("pie-${question.questionId}").getContext("2d"), {
+              type: 'pie',
+              data: {
+                labels: labels, // Display options as labels
+                datasets: [{
+                  data: values, // Display counts as values
+                  backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40' // Example colors
+                  ],
+                }]
+              },
+              options: {
+                responsive: true
+              }
+            });
+          } else {
+            console.log(`No data available for pie chart with Question ID ${question.questionId}`);
+          }
+          /*]]>*/
+        </script>
+
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

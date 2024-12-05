@@ -7,6 +7,5 @@ import project.survey.Survey;
 import java.util.List;
 
 public interface AnswerRepository extends CrudRepository<Answer, Integer> {
-    //ToDo Milestone1: Add custom queries for answers here
     List<Answer> findBySurveyId(int surveyId);
 }
