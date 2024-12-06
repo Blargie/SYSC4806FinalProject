@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EntityScan({"project.survey", "project.question", "project.answer"})
-@EnableJpaRepositories({"project.survey", "project.question", "project.answer"})
+@EntityScan({"project.survey","project.user", "project.question", "project.answer"})
+@EnableJpaRepositories({"project.survey","project.user", "project.question", "project.answer"})
 
 public class RestServiceApplication {
     public static void main(String[] args) {

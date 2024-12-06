@@ -36,7 +36,8 @@ public class Survey {
     @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Question> surveyQuestions = new ArrayList<>();
-
+    @Column(nullable = false)
+    private Integer creatorId;
     // Constructors
     public Survey() {
         this.createdAt = new Date();
@@ -49,6 +50,10 @@ public class Survey {
         this.surveyName = surveyName;
     }
 
+    public Integer getCreatorId() {
+        return creatorId;
+    }
+    
     // Getters
     public Integer getSurveyId() {
         return surveyId;
@@ -87,6 +92,10 @@ public class Survey {
     }
 
     // Setters
+    public void setCreatorId(Integer creatorId) {
+        this.creatorId = creatorId;
+    }
+
     public void setSurveyId(Integer surveyId) {
         this.surveyId = surveyId;
     }

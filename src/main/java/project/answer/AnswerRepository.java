@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface AnswerRepository extends CrudRepository<Answer, Integer> {
     List<Answer> findBySurveyId(int surveyId);
+    List<Answer> findBySurveyIdAndQuestionId(Integer surveyId, Integer questionId);
 }
