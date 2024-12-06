@@ -1,5 +1,8 @@
 package project.user;
 
-public interface UserRepository {
-    //ToDo Milestone2: Add functionality for users
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    User findByUsername(String username);
+    boolean existsByUsername(String username);
 }

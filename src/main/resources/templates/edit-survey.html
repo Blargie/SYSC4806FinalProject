@@ -8,6 +8,8 @@
 </head>
 
 <body>
+  <div th:replace="~{navbar :: navbar}"></div>
+
   <div class="container mt-5">
     <h2>Edit Survey</h2>
     <form id="surveyForm" class="needs-validation" novalidate>
@@ -216,7 +218,7 @@
 
         if (response.ok) {
           alert('Survey updated successfully!');
-          window.location.href = '/api/surveys/list';
+          window.location.href = '/api/surveys/list-open';
         } else {
           alert('Failed to update survey');
         }
